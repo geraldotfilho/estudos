@@ -3,240 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plano de Estudos — Sefaz CE | Maio 2026</title>
+<title>Plano de Estudos — Sefaz CE 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
-
   :root {
-    --bg: #0d0f14;
-    --surface: #13161e;
-    --surface2: #1a1e2a;
-    --border: #252a38;
-    --accent: #f0c040;
-    --accent2: #4fc3f7;
-    --accent3: #a78bfa;
-    --danger: #f87171;
-    --muted: #4a5270;
-    --text: #e2e8f0;
-    --text-dim: #8892b0;
+    --bg:#0d0f14; --surface:#13161e; --surface2:#1a1e2a; --border:#252a38;
+    --accent:#f0c040; --danger:#f87171; --muted:#4a5270; --text:#e2e8f0; --text-dim:#8892b0;
   }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;padding:32px 20px;}
+  .container{max-width:980px;margin:0 auto;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* sync */
+  #syncStatus{position:fixed;top:12px;right:16px;font-family:'Space Mono',monospace;font-size:.65rem;padding:4px 10px;border-radius:20px;z-index:100;transition:all .3s;}
+  #syncStatus.syncing{background:#1e3a2e;color:#34d399;border:1px solid #34d399;}
+  #syncStatus.saved{background:#1a1e2a;color:#4a5270;border:1px solid #252a38;}
+  #syncStatus.error{background:#2a1a1a;color:#f87171;border:1px solid #f87171;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    padding: 32px 20px;
-  }
+  /* lock */
+  #lockScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;}
+  .lock-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;width:320px;text-align:center;}
+  .lock-box h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;}
+  .lock-box h2 span{color:var(--accent);}
+  .lock-box p{font-size:.75rem;color:var(--text-dim);margin-bottom:20px;font-family:'Space Mono',monospace;}
+  .lock-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:10px 14px;font-family:'Space Mono',monospace;font-size:.9rem;outline:none;text-align:center;letter-spacing:4px;margin-bottom:12px;transition:border-color .15s;}
+  .lock-input:focus{border-color:var(--accent);}
+  .lock-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:6px;padding:10px;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;}
+  .lock-btn:hover{background:#ffd060;}
+  .lock-error{color:var(--danger);font-size:.72rem;font-family:'Space Mono',monospace;margin-top:8px;min-height:16px;}
 
-  .container { max-width: 960px; margin: 0 auto; }
+  /* header */
+  header{margin-bottom:36px;border-bottom:1px solid var(--border);padding-bottom:24px;}
+  .title-block h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;line-height:1.1;}
+  .title-block h1 span{color:var(--accent);}
+  .title-block p{margin-top:6px;color:var(--text-dim);font-size:.85rem;font-family:'Space Mono',monospace;}
+  .stats-bar{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px;}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 18px;min-width:120px;}
+  .stat-label{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;}
+  .stat-value{font-size:1.4rem;font-weight:800;margin-top:2px;color:var(--accent);}
+  .stat-sub{font-size:.72rem;color:var(--text-dim);margin-top:1px;}
 
-  /* Sync indicator */
-  #syncStatus {
-    position: fixed;
-    top: 12px;
-    right: 16px;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    padding: 4px 10px;
-    border-radius: 20px;
-    z-index: 100;
-    transition: all 0.3s;
-  }
-  #syncStatus.syncing { background: #1e3a2e; color: #34d399; border: 1px solid #34d399; }
-  #syncStatus.saved   { background: #1a1e2a; color: #4a5270; border: 1px solid #252a38; }
-  #syncStatus.error   { background: #2a1a1a; color: #f87171; border: 1px solid #f87171; }
-  #syncStatus.offline { background: #2a1e10; color: #fb923c; border: 1px solid #fb923c; }
+  /* tabs */
+  .tabs{display:flex;gap:4px;margin-bottom:24px;}
+  .tab-btn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text-dim);padding:8px 20px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;}
+  .tab-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
 
-  /* Lock screen */
-  #lockScreen {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    flex-direction: column;
-    gap: 20px;
-  }
+  /* section title */
+  .section-title{font-size:.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--text-dim);font-family:'Space Mono',monospace;margin-bottom:14px;}
 
-  .lock-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    width: 320px;
-    text-align: center;
-  }
+  /* progress bars */
+  .progress-section{margin-bottom:32px;}
+  .discipline-bars{display:flex;flex-direction:column;gap:10px;}
+  .disc-row{display:grid;grid-template-columns:185px 1fr 90px 70px;align-items:center;gap:10px;}
+  .disc-name{font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-track{background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+  .disc-hours{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--text-dim);text-align:right;}
+  .disc-pct{font-family:'Space Mono',monospace;font-size:.72rem;font-weight:700;text-align:right;}
 
-  .lock-box h2 {
-    font-size: 1.2rem;
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
+  /* calendar */
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--text-dim);font-family:'Space Mono',monospace;}
+  .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+  .week-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+  .week-label{text-align:center;font-size:.62rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;padding:3px 0;}
+  .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .cal-empty{visibility:hidden;aspect-ratio:1;}
+  .cal-day{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:5px;min-height:68px;display:flex;flex-direction:column;}
+  .cal-day.plantao{background:#151820;border-color:#1e2230;}
+  .cal-day.pos-plantao{background:#0a1a10;border-color:#143020;}
+  .cal-day.weekend{background:var(--surface2);}
+  .cal-day.today{border-color:var(--accent);border-width:2px;}
+  .day-num{font-family:'Space Mono',monospace;font-size:.68rem;font-weight:700;color:var(--text-dim);}
+  .cal-day.today .day-num{color:var(--accent);}
+  .day-disc{margin-top:3px;font-size:.57rem;font-weight:700;line-height:1.3;flex:1;}
+  .day-hours-logged{margin-top:auto;font-family:'Space Mono',monospace;font-size:.57rem;color:var(--text-dim);display:flex;align-items:center;gap:2px;}
+  .hours-dot{width:5px;height:5px;border-radius:50%;background:var(--muted);display:inline-block;flex-shrink:0;}
+  .hours-dot.logged{background:#34d399;}
 
-  .lock-box h2 span { color: var(--accent); }
+  /* topics */
+  .topics-section{margin-bottom:32px;}
+  .discipline-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+  .disc-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;transition:background .15s;}
+  .disc-header:hover{background:var(--surface2);}
+  .disc-header-left{display:flex;align-items:center;gap:10px;}
+  .disc-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .disc-header-name{font-size:.88rem;font-weight:700;}
+  .disc-header-meta{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--text-dim);}
+  .disc-header-right{display:flex;align-items:center;gap:12px;}
+  .disc-completion{font-family:'Space Mono',monospace;font-size:.78rem;font-weight:700;}
+  .chevron{color:var(--muted);font-size:.68rem;transition:transform .2s;}
+  .discipline-block.open .chevron{transform:rotate(180deg);}
+  .topics-list{display:none;padding:0 16px 12px;border-top:1px solid var(--border);}
+  .discipline-block.open .topics-list{display:block;}
+  .topic-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s;}
+  .topic-item:last-child{border-bottom:none;}
+  .topic-item:hover{opacity:.75;}
+  .topic-check{width:15px;height:15px;border:1.5px solid var(--muted);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .topic-check.done{background:#34d399;border-color:#34d399;}
+  .topic-check.done::after{content:'✓';font-size:9px;color:#000;font-weight:700;}
+  .topic-text{font-size:.76rem;line-height:1.5;}
+  .topic-item.done-item .topic-text{color:var(--muted);text-decoration:line-through;}
 
-  .lock-box p {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    margin-bottom: 20px;
-    font-family: 'Space Mono', monospace;
-  }
+  /* log */
+  .log-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+  .log-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+  .form-field{display:flex;flex-direction:column;gap:4px;}
+  .form-label{font-size:.68rem;color:var(--text-dim);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.5px;}
+  .form-input,.form-select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 12px;font-family:'Space Mono',monospace;font-size:.78rem;outline:none;transition:border-color .15s;}
+  .form-input:focus,.form-select:focus{border-color:var(--accent);}
+  .form-select{appearance:none;cursor:pointer;}
+  .log-btn{background:var(--accent);color:#000;border:none;border-radius:6px;padding:8px 20px;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .15s;align-self:flex-end;}
+  .log-btn:hover{background:#ffd060;}
+  .log-history{margin-top:14px;display:flex;flex-direction:column;gap:5px;}
+  .log-entry{display:flex;align-items:center;gap:9px;background:var(--surface2);border-radius:6px;padding:7px 11px;font-family:'Space Mono',monospace;font-size:.7rem;}
+  .log-entry-date{color:var(--text-dim);min-width:65px;}
+  .log-entry-disc{font-weight:700;flex:1;}
+  .log-entry-hours{color:var(--accent);min-width:30px;}
+  .log-entry-note{color:var(--text-dim);flex:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .delete-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem;padding:2px 4px;border-radius:3px;transition:color .15s;}
+  .delete-btn:hover{color:var(--danger);}
 
-  .lock-input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 10px 14px;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.9rem;
-    outline: none;
-    text-align: center;
-    letter-spacing: 4px;
-    margin-bottom: 12px;
-    transition: border-color 0.15s;
-  }
-
-  .lock-input:focus { border-color: var(--accent); }
-
-  .lock-btn {
-    width: 100%;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 6px;
-    padding: 10px;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .lock-btn:hover { background: #ffd060; }
-
-  .lock-error {
-    color: var(--danger);
-    font-size: 0.72rem;
-    font-family: 'Space Mono', monospace;
-    margin-top: 8px;
-    min-height: 16px;
-  }
-
-  /* Header */
-  header { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 28px; }
-
-  .title-block h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1; }
-  .title-block h1 span { color: var(--accent); }
-  .title-block p { margin-top: 6px; color: var(--text-dim); font-size: 0.875rem; font-family: 'Space Mono', monospace; }
-
-  .stats-bar { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
-
-  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; min-width: 130px; }
-  .stat-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-family: 'Space Mono', monospace; }
-  .stat-value { font-size: 1.5rem; font-weight: 800; margin-top: 2px; color: var(--accent); }
-  .stat-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 1px; }
-
-  /* Progress bars */
-  .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); font-family: 'Space Mono', monospace; margin-bottom: 16px; }
-
-  .progress-section, .calendar-section, .topics-section, .log-section { margin-bottom: 36px; }
-
-  .discipline-bars { display: flex; flex-direction: column; gap: 12px; }
-
-  .disc-row { display: grid; grid-template-columns: 180px 1fr 90px 80px; align-items: center; gap: 12px; }
-  .disc-name { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar-track { background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-  .disc-hours { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--text-dim); text-align: right; }
-  .disc-pct { font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; text-align: right; }
-
-  /* Calendar */
-  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; color: var(--text-dim); font-family: 'Space Mono', monospace; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
-
-  .week-labels { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
-  .week-label { text-align: center; font-size: 0.65rem; font-family: 'Space Mono', monospace; color: var(--muted); text-transform: uppercase; padding: 4px 0; }
-
-  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-  .cal-empty { visibility: hidden; aspect-ratio: 1; }
-
-  .cal-day { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px; min-height: 72px; display: flex; flex-direction: column; transition: all 0.15s; }
-  .cal-day.plantao { background: #1a1f2e; border-color: #252a38; }
-  .cal-day.pos-plantao { background: #0f2018; border-color: #1a3a24; }
-  .cal-day.weekend { background: var(--surface2); }
-  .cal-day.today { border-color: var(--accent); border-width: 2px; }
-
-  .day-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 700; color: var(--text-dim); }
-  .cal-day.today .day-num { color: var(--accent); }
-  .day-type { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-  .day-disc { margin-top: 4px; font-size: 0.6rem; font-weight: 700; line-height: 1.3; flex: 1; }
-  .day-hours-logged { margin-top: auto; font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--text-dim); display: flex; align-items: center; gap: 3px; }
-  .hours-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); display: inline-block; flex-shrink: 0; }
-  .hours-dot.logged { background: #34d399; }
-
-  /* Topics */
-  .discipline-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
-  .disc-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; transition: background 0.15s; }
-  .disc-header:hover { background: var(--surface2); }
-  .disc-header-left { display: flex; align-items: center; gap: 10px; }
-  .disc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .disc-header-name { font-size: 0.9rem; font-weight: 700; }
-  .disc-header-meta { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-dim); }
-  .disc-header-right { display: flex; align-items: center; gap: 12px; }
-  .disc-completion { font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; }
-  .chevron { color: var(--muted); font-size: 0.7rem; transition: transform 0.2s; }
-  .discipline-block.open .chevron { transform: rotate(180deg); }
-  .topics-list { display: none; padding: 0 16px 12px; border-top: 1px solid var(--border); }
-  .discipline-block.open .topics-list { display: block; }
-
-  .topic-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: opacity 0.15s; }
-  .topic-item:last-child { border-bottom: none; }
-  .topic-item:hover { opacity: 0.8; }
-  .topic-check { width: 16px; height: 16px; border: 1.5px solid var(--muted); border-radius: 3px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-  .topic-check.done { background: #34d399; border-color: #34d399; }
-  .topic-check.done::after { content: '✓'; font-size: 10px; color: #000; font-weight: 700; }
-  .topic-text { font-size: 0.78rem; line-height: 1.5; }
-  .topic-item.done-item .topic-text { color: var(--muted); text-decoration: line-through; }
-
-  /* Log */
-  .log-section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
-  .log-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
-  .form-field { display: flex; flex-direction: column; gap: 4px; }
-  .form-label { font-size: 0.7rem; color: var(--text-dim); font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
-  .form-input, .form-select { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 8px 12px; font-family: 'Space Mono', monospace; font-size: 0.8rem; outline: none; transition: border-color 0.15s; }
-  .form-input:focus, .form-select:focus { border-color: var(--accent); }
-  .form-select { appearance: none; cursor: pointer; }
-  .log-btn { background: var(--accent); color: #000; border: none; border-radius: 6px; padding: 8px 20px; font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; align-self: flex-end; }
-  .log-btn:hover { background: #ffd060; }
-
-  .log-history { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
-  .log-entry { display: flex; align-items: center; gap: 10px; background: var(--surface2); border-radius: 6px; padding: 8px 12px; font-family: 'Space Mono', monospace; font-size: 0.72rem; }
-  .log-entry-date { color: var(--text-dim); min-width: 50px; }
-  .log-entry-disc { font-weight: 700; flex: 1; }
-  .log-entry-hours { color: var(--accent); min-width: 30px; }
-  .log-entry-note { color: var(--text-dim); flex: 2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .delete-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.75rem; padding: 2px 4px; border-radius: 3px; transition: color 0.15s; }
-  .delete-btn:hover { color: var(--danger); }
-
-  @media (max-width: 600px) {
-    .disc-row { grid-template-columns: 1fr 1fr; }
-    .disc-hours { display: none; }
-    body { padding: 16px 12px; }
-    .title-block h1 { font-size: 1.4rem; }
-    .cal-day { min-height: 58px; }
+  @media(max-width:600px){
+    .disc-row{grid-template-columns:1fr 1fr;}
+    .disc-hours{display:none;}
+    body{padding:14px 10px;}
+    .title-block h1{font-size:1.35rem;}
+    .cal-day{min-height:54px;}
+    .tabs{flex-wrap:wrap;}
   }
 </style>
 </head>
 <body>
 
-<!-- Lock Screen -->
+<!-- Lock -->
 <div id="lockScreen">
   <div class="lock-box">
     <h2>Plano de Estudos<br><span>Sefaz CE 2026</span></h2>
@@ -247,26 +149,24 @@
   </div>
 </div>
 
-<!-- Sync status -->
 <div id="syncStatus" class="saved">● sincronizado</div>
 
 <div class="container" id="mainApp" style="display:none">
-
   <header>
     <div class="title-block">
-      <h1>Plano de Estudos<br><span>Sefaz CE · Maio 2026</span></h1>
-      <p>Auditor Fiscal — Gestão Fazendária | Prova: 02/08/2026</p>
+      <h1>Plano de Estudos<br><span>Sefaz CE · Mai–Jun 2026</span></h1>
+      <p>Auditor Fiscal — Gestão Fazendária | Prova: 01–02/08/2026</p>
     </div>
     <div class="stats-bar">
       <div class="stat">
         <div class="stat-label">Horas estudadas</div>
         <div class="stat-value" id="totalHours">0h</div>
-        <div class="stat-sub">meta maio: ~112h</div>
+        <div class="stat-sub">meta total: ~222h</div>
       </div>
       <div class="stat">
         <div class="stat-label">Dias estudados</div>
         <div class="stat-value" id="totalDays">0</div>
-        <div class="stat-sub">de 25 dias úteis</div>
+        <div class="stat-sub">mai + jun</div>
       </div>
       <div class="stat">
         <div class="stat-label">Tópicos cobertos</div>
@@ -276,79 +176,118 @@
       <div class="stat">
         <div class="stat-label">Dias até a prova</div>
         <div class="stat-value" id="daysLeft">—</div>
-        <div class="stat-sub">02 de agosto</div>
+        <div class="stat-sub">01 de agosto</div>
       </div>
     </div>
   </header>
 
-  <section class="progress-section">
-    <div class="section-title">⬡ Progresso por Disciplina</div>
-    <div class="discipline-bars" id="disciplineBars"></div>
-  </section>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('maio')">Maio</button>
+    <button class="tab-btn" onclick="switchTab('junho')">Junho</button>
+    <button class="tab-btn" onclick="switchTab('topicos')">Tópicos</button>
+    <button class="tab-btn" onclick="switchTab('registrar')">Registrar</button>
+  </div>
 
-  <section class="calendar-section">
-    <div class="section-title">◈ Calendário — Maio 2026</div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#f0c040"></div>Fluência de Dados</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div>Dir. Tributário</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Contabilidade</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Leg. Tributária</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Finanças Públ.</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#252a38"></div>Plantão</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#0f2018"></div>Pós-plantão</div>
-    </div>
-    <div class="week-labels">
-      <div class="week-label">Dom</div><div class="week-label">Seg</div><div class="week-label">Ter</div>
-      <div class="week-label">Qua</div><div class="week-label">Qui</div><div class="week-label">Sex</div>
-      <div class="week-label">Sáb</div>
-    </div>
-    <div class="calendar-grid" id="calendarGrid"></div>
-  </section>
+  <!-- MAIO -->
+  <div class="tab-panel active" id="tab-maio">
+    <section class="progress-section">
+      <div class="section-title">⬡ Progresso por Disciplina</div>
+      <div class="discipline-bars" id="disciplineBars"></div>
+    </section>
+    <section>
+      <div class="section-title">◈ Calendário — Maio 2026</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#f0c040"></div>Fluência de Dados</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div>Dir. Tributário</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Contabilidade</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#252a38"></div>Plantão</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0a1a10"></div>Pós-plantão</div>
+      </div>
+      <div class="week-labels">
+        <div class="week-label">Dom</div><div class="week-label">Seg</div><div class="week-label">Ter</div>
+        <div class="week-label">Qua</div><div class="week-label">Qui</div><div class="week-label">Sex</div>
+        <div class="week-label">Sáb</div>
+      </div>
+      <div class="calendar-grid" id="calMaio"></div>
+    </section>
+  </div>
 
-  <section class="topics-section">
-    <div class="section-title">◆ Tópicos do Edital</div>
-    <div id="topicsContainer"></div>
-  </section>
+  <!-- JUNHO -->
+  <div class="tab-panel" id="tab-junho">
+    <section>
+      <div class="section-title">◈ Calendário — Junho 2026</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Contabilidade</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Leg. Tributária</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Finanças Públ.</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#252a38"></div>Plantão</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0a1a10"></div>Pós-plantão</div>
+      </div>
+      <div class="week-labels">
+        <div class="week-label">Dom</div><div class="week-label">Seg</div><div class="week-label">Ter</div>
+        <div class="week-label">Qua</div><div class="week-label">Qui</div><div class="week-label">Sex</div>
+        <div class="week-label">Sáb</div>
+      </div>
+      <div class="calendar-grid" id="calJunho"></div>
+    </section>
+  </div>
 
-  <section class="log-section">
-    <div class="section-title" style="margin-bottom:16px">✎ Registrar sessão de estudo</div>
-    <div class="log-form">
-      <div class="form-field">
-        <label class="form-label">Dia (maio)</label>
-        <input type="number" class="form-input" id="logDay" min="1" max="31" placeholder="dia" style="width:70px">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Disciplina</label>
-        <select class="form-select" id="logDisc" style="width:185px">
-          <option value="fluencia">Fluência de Dados</option>
-          <option value="tributario">Dir. Tributário</option>
-          <option value="contabilidade">Contabilidade Av.</option>
-          <option value="legislacao">Leg. Tributária</option>
-          <option value="financas">Finanças Públicas</option>
-          <option value="basico">Ciclo Básico</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Horas</label>
-        <input type="number" class="form-input" id="logHours" min="0.5" max="12" step="0.5" placeholder="h" style="width:70px">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Obs. (opcional)</label>
-        <input type="text" class="form-input" id="logNote" placeholder="ex: CTN arts 1-50" style="width:200px">
-      </div>
-      <button class="log-btn" onclick="addLog()">Registrar</button>
-    </div>
-    <div class="log-history" id="logHistory"></div>
-  </section>
+  <!-- TÓPICOS -->
+  <div class="tab-panel" id="tab-topicos">
+    <section class="topics-section">
+      <div class="section-title">◆ Tópicos do Edital — clique para marcar como concluído</div>
+      <div id="topicsContainer"></div>
+    </section>
+  </div>
 
+  <!-- REGISTRAR -->
+  <div class="tab-panel" id="tab-registrar">
+    <section class="log-section">
+      <div class="section-title" style="margin-bottom:16px">✎ Registrar sessão de estudo</div>
+      <div class="log-form">
+        <div class="form-field">
+          <label class="form-label">Mês</label>
+          <select class="form-select" id="logMonth" style="width:100px">
+            <option value="maio">Maio</option>
+            <option value="junho">Junho</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Dia</label>
+          <input type="number" class="form-input" id="logDay" min="1" max="31" placeholder="dia" style="width:65px">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Disciplina</label>
+          <select class="form-select" id="logDisc" style="width:185px">
+            <option value="fluencia">Fluência de Dados</option>
+            <option value="tributario">Dir. Tributário</option>
+            <option value="contabilidade">Contabilidade Av.</option>
+            <option value="legislacao">Leg. Tributária</option>
+            <option value="financas">Finanças Públicas</option>
+            <option value="basico">Ciclo Básico</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Horas</label>
+          <input type="number" class="form-input" id="logHours" min="0.5" max="12" step="0.5" placeholder="h" style="width:65px">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Obs. (opcional)</label>
+          <input type="text" class="form-input" id="logNote" placeholder="ex: CTN arts 1-50" style="width:190px">
+        </div>
+        <button class="log-btn" onclick="addLog()">Registrar</button>
+      </div>
+      <div class="log-history" id="logHistory"></div>
+    </section>
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField, onSnapshot }
+import { getFirestore, doc, setDoc, updateDoc, deleteField, onSnapshot }
   from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-// ── Firebase setup ────────────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyBLA8B2gv71Z4RnCn4y6_tzzkkJgSt7UBY",
   authDomain: "sefaz-ce-estudos.firebaseapp.com",
@@ -360,10 +299,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
-// ── Password (change this to your desired password) ───────────────────────────
-const CORRECT_PASSWORD = "sefaz2026";
+const PASSWORD = "sefaz2026";
 
-// ── Data ─────────────────────────────────────────────────────────────────────
+// ── Disciplines ───────────────────────────────────────────────────────────────
 const DISCIPLINES = [
   { id:'fluencia',      name:'Fluência de Dados',  color:'#f0c040', targetH:28, questoes:10 },
   { id:'tributario',    name:'Dir. Tributário',     color:'#4fc3f7', targetH:60, questoes:20 },
@@ -372,40 +310,79 @@ const DISCIPLINES = [
   { id:'financas',      name:'Finanças Públicas',   color:'#fb923c', targetH:20, questoes:10 },
 ];
 
+// ── Calendar plans ────────────────────────────────────────────────────────────
+// May 1 2026 = Thursday → offset 4 (Sun=0)
+const MAY_OFFSET = 4;
 const MAY_PLAN = {
-  1: {type:'feriado',    disc:null,           label:'Feriado'},
-  2: {type:'estudo',     disc:'fluencia',     label:'Fluência de Dados', hours:2},
-  3: {type:'weekend',    disc:'fluencia',     label:'Fluência de Dados', hours:4},
-  4: {type:'plantao',    disc:null,           label:'Plantão'},
-  5: {type:'plantao',    disc:null,           label:'Plantão'},
-  6: {type:'plantao',    disc:null,           label:'Plantão'},
-  7: {type:'pos-plantao',disc:'fluencia',     label:'Fluência de Dados', hours:3},
-  8: {type:'estudo',     disc:'fluencia',     label:'Fluência de Dados', hours:5.5},
-  9: {type:'estudo',     disc:'fluencia',     label:'Fluência de Dados', hours:5.5},
-  10:{type:'weekend',    disc:'fluencia',     label:'Fluência de Dados', hours:4},
-  11:{type:'weekend',    disc:'fluencia',     label:'Fluência de Dados', hours:4},
-  12:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário', hours:5.5},
-  13:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário', hours:5.5},
-  14:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário', hours:5.5},
-  15:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário', hours:5.5},
-  16:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário', hours:4},
-  17:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário', hours:4},
-  18:{type:'plantao',    disc:null,           label:'Plantão'},
-  19:{type:'plantao',    disc:null,           label:'Plantão'},
-  20:{type:'plantao',    disc:null,           label:'Plantão'},
-  21:{type:'pos-plantao',disc:'tributario',   label:'Dir. Tributário', hours:3},
-  22:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário', hours:5.5},
-  23:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário', hours:5.5},
-  24:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário', hours:4},
-  25:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário', hours:4},
-  26:{type:'estudo',     disc:'contabilidade',label:'Contabilidade', hours:5.5},
-  27:{type:'estudo',     disc:'contabilidade',label:'Contabilidade', hours:5.5},
-  28:{type:'estudo',     disc:'contabilidade',label:'Contabilidade', hours:5.5},
-  29:{type:'estudo',     disc:'contabilidade',label:'Contabilidade', hours:5.5},
-  30:{type:'estudo',     disc:'contabilidade',label:'Contabilidade', hours:5.5},
-  31:{type:'weekend',    disc:'contabilidade',label:'Contabilidade', hours:4},
+  1: {type:'feriado',     disc:null,           label:'Feriado',           hours:0},
+  2: {type:'estudo',      disc:'fluencia',     label:'Fluência de Dados', hours:2},
+  3: {type:'weekend',     disc:'fluencia',     label:'Fluência de Dados', hours:4},
+  4: {type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  5: {type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  6: {type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  7: {type:'pos-plantao', disc:'fluencia',     label:'Fluência de Dados', hours:3},
+  8: {type:'estudo',      disc:'fluencia',     label:'Fluência de Dados', hours:5.5},
+  9: {type:'estudo',      disc:'fluencia',     label:'Fluência de Dados', hours:5.5},
+  10:{type:'weekend',     disc:'fluencia',     label:'Fluência de Dados', hours:4},
+  11:{type:'weekend',     disc:'fluencia',     label:'Fluência de Dados', hours:4},
+  12:{type:'estudo',      disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
+  13:{type:'estudo',      disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
+  14:{type:'estudo',      disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
+  15:{type:'estudo',      disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
+  16:{type:'weekend',     disc:'tributario',   label:'Dir. Tributário',   hours:4},
+  17:{type:'weekend',     disc:'tributario',   label:'Dir. Tributário',   hours:4},
+  18:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  19:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  20:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  21:{type:'pos-plantao', disc:'tributario',   label:'Dir. Tributário',   hours:3},
+  22:{type:'estudo',      disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
+  23:{type:'estudo',      disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
+  24:{type:'weekend',     disc:'tributario',   label:'Dir. Tributário',   hours:4},
+  25:{type:'weekend',     disc:'tributario',   label:'Dir. Tributário',   hours:4},
+  26:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  27:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  28:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  29:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  30:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  31:{type:'weekend',     disc:'contabilidade',label:'Contabilidade',     hours:4},
 };
 
+// June 1 2026 = Monday → offset 1
+const JUN_OFFSET = 1;
+const JUN_PLAN = {
+  1: {type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  2: {type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  3: {type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  4: {type:'pos-plantao', disc:'contabilidade',label:'Contabilidade',     hours:3},
+  5: {type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  6: {type:'weekend',     disc:'contabilidade',label:'Contabilidade',     hours:4},
+  7: {type:'weekend',     disc:'contabilidade',label:'Contabilidade',     hours:4},
+  8: {type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  9: {type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  10:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  11:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  12:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
+  13:{type:'weekend',     disc:'legislacao',   label:'Leg. Tributária',   hours:4},
+  14:{type:'weekend',     disc:'legislacao',   label:'Leg. Tributária',   hours:4},
+  15:{type:'estudo',      disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
+  16:{type:'estudo',      disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
+  17:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  18:{type:'pos-plantao', disc:'legislacao',   label:'Leg. Tributária',   hours:3},
+  19:{type:'estudo',      disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
+  20:{type:'weekend',     disc:'legislacao',   label:'Leg. Tributária',   hours:4},
+  21:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  22:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
+  23:{type:'pos-plantao', disc:'legislacao',   label:'Leg. Tributária',   hours:3},
+  24:{type:'estudo',      disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
+  25:{type:'estudo',      disc:'financas',     label:'Finanças Públicas', hours:5.5},
+  26:{type:'estudo',      disc:'financas',     label:'Finanças Públicas', hours:5.5},
+  27:{type:'weekend',     disc:'financas',     label:'Finanças Públicas', hours:4},
+  28:{type:'weekend',     disc:'financas',     label:'Finanças Públicas', hours:4},
+  29:{type:'estudo',      disc:'financas',     label:'Finanças Públicas', hours:5.5},
+  30:{type:'estudo',      disc:'financas',     label:'Finanças Públicas', hours:5.5},
+};
+
+// ── Topics ────────────────────────────────────────────────────────────────────
 const TOPICS = {
   fluencia:[
     'Ciência de Dados: conceitos fundamentais',
@@ -414,9 +391,9 @@ const TOPICS = {
     'Metodologia CRISP',
     'Big Data: Data Warehouse, Data Mart, Data Lake, Data Lakehouse',
     'Engenharia de Dados',
-    'Pré-processamento de Dados: preparação, limpeza e transformação',
+    'Pré-processamento: preparação, limpeza e transformação de dados',
     'Banco de Dados Relacionais e Não Relacionais (NoSQL)',
-    'SQL: DQL — agregação, agrupamento, junção, ordenação, restrições e operações lógicas',
+    'SQL — DQL: agregação, agrupamento, junção, ordenação, restrições, operações lógicas',
     'Análise de dados: agrupamentos, tendências e projeções',
     'Data Mining',
     'Noções de Machine Learning (supervisionado e não supervisionado)',
@@ -428,22 +405,22 @@ const TOPICS = {
     'Classificação e controle de acesso a dados',
     'Anonimização, mascaramento e políticas de retenção de dados',
     'Conformidade legal: LGPD e Marco Civil da Internet',
-    'Sigilo Fiscal e sigilo funcional (CTN arts. 198-199; Resolução SF 20/2012)',
+    'Sigilo Fiscal e sigilo funcional (CTN arts. 198–199; Resolução SF 20/2012)',
   ],
   tributario:[
     'STN na CF/88: tributação, orçamento e princípios gerais',
     'Limitações constitucionais ao poder de tributar',
     'Impostos da União, dos Estados, do DF e dos Municípios',
     'Imposto de competência compartilhada; repartição das receitas tributárias',
-    'CTN — Disposição preliminar; STN no CTN',
+    'CTN — Disposição preliminar; sistema tributário nacional no CTN',
     'Competência Tributária: disposições gerais e limitações',
     'Impostos sobre patrimônio e renda; ITBI; taxas; contribuição de melhoria',
-    'Legislação Tributária: fontes, leis, tratados, NCs, decretos',
+    'Legislação Tributária: fontes, leis, tratados, normas complementares, decretos',
     'Vigência, aplicação, interpretação e integração da legislação tributária',
     'Obrigação Tributária: fato gerador, sujeito ativo e passivo',
     'Solidariedade, capacidade e domicílio tributário',
     'Responsabilidade dos sucessores e de terceiros; responsabilidade por infrações',
-    'Crédito Tributário: constituição e lançamento (modalidades)',
+    'Crédito Tributário: constituição e modalidades de lançamento',
     'Suspensão da exigibilidade do crédito tributário; moratória',
     'Extinção do Crédito: pagamento, compensação, remissão, prescrição e decadência',
     'Exclusão do Crédito: isenção e anistia',
@@ -460,10 +437,10 @@ const TOPICS = {
     'Valores a receber; aplicações financeiras; empréstimos e debêntures',
     'Propriedade para Investimento (CPC 28)',
     'Operações de Arrendamento: reconhecimento e mensuração (CPC 06/R2)',
-    'Participações Societárias: coligadas e controladas; influência e controle (CPC 18/36)',
+    'Participações Societárias: coligadas e controladas (CPC 18/36)',
     'MEP — mais valia, goodwill e compra com deságio',
     'Subvenção e Assistência Governamentais (CPC 07)',
-    'Conversão de demonstrações contábeis — taxas de câmbio (CPC 02)',
+    'Conversão de demonstrações — efeitos das taxas de câmbio (CPC 02)',
     'Balanço Patrimonial: estrutura e classificação',
     'Demonstração do Resultado: estrutura e classificação',
     'Demonstração do Resultado Abrangente',
@@ -474,11 +451,11 @@ const TOPICS = {
     'Classificação: diretos/indiretos, fixos/variáveis',
     'Custeio por Absorção',
     'Custeio Variável',
-    'Custeio ABC',
+    'Custeio Baseado em Atividades (ABC)',
     'Departamentalização',
     'Produção por ordem, contínua e conjunta',
-    'Custo Padrão',
-    'Margem de Contribuição; CVL; ponto de equilíbrio contábil, econômico e financeiro',
+    'Custo Padrão: conceito, finalidades e tratamento contábil',
+    'Margem de Contribuição; CVL; ponto de equilíbrio contábil, econômico e financeiro; margem de segurança',
   ],
   legislacao:[
     'Lei 18.665/2023 — ICMS-CE: disposições gerais',
@@ -489,9 +466,9 @@ const TOPICS = {
     'ICMS: créditos, aproveitamento e estorno',
     'Simples Nacional e ICMS (LC 123/2006; Resolução CGSN 140/2018)',
     'LC 24/1975 — convênios e isenções interestaduais',
-    'LC 87/1996 (Lei Kandir)',
-    'LC 105/2001 — sigilo das operações financeiras',
-    'LC 116/2003 — ISSQN e conflito com ICMS',
+    'LC 87/1996 — Lei Kandir',
+    'LC 105/2001 — sigilo das operações de instituições financeiras',
+    'LC 116/2003 — ISSQN e conflito de competência com o ICMS',
     'LC 160/2017 — remissão de créditos e benefícios fiscais',
     'LC 192/2022 — ICMS monofásico sobre combustíveis',
     'Reforma Tributária: EC 132/2023 e LC 214/2025',
@@ -513,116 +490,66 @@ const TOPICS = {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let state = { logs:{}, topics:{}, openDiscs:{} };
-let unsubscribe = null;
 
-// ── Sync helpers ──────────────────────────────────────────────────────────────
-function setSync(mode, msg) {
-  const el = document.getElementById('syncStatus');
-  el.className = mode;
-  el.textContent = msg;
+// ── Sync ──────────────────────────────────────────────────────────────────────
+function setSync(mode, msg){ const el=document.getElementById('syncStatus'); el.className=mode; el.textContent=msg; }
+
+async function save(patch){
+  setSync('syncing','↑ salvando...');
+  try{ await setDoc(doc(db,'estudos','plano2026'), patch, {merge:true}); setSync('saved','● sincronizado'); }
+  catch(e){ setSync('error','✕ erro ao salvar'); }
 }
 
-async function saveToFirestore(patch) {
-  setSync('syncing', '↑ salvando...');
-  try {
-    const ref = doc(db, 'estudos', 'maio2026');
-    await setDoc(ref, patch, { merge: true });
-    setSync('saved', '● sincronizado');
-  } catch(e) {
-    setSync('error', '✕ erro ao salvar');
-    console.error(e);
-  }
+function listen(){
+  onSnapshot(doc(db,'estudos','plano2026'), snap=>{
+    if(snap.exists()){ const d=snap.data(); state.logs=d.logs||{}; state.topics=d.topics||{}; state.openDiscs=d.openDiscs||{}; }
+    render(); setSync('saved','● sincronizado');
+  }, ()=>setSync('error','✕ sem conexão'));
 }
 
-function listenFirestore() {
-  const ref = doc(db, 'estudos', 'maio2026');
-  unsubscribe = onSnapshot(ref, snap => {
-    if (snap.exists()) {
-      const data = snap.data();
-      state.logs     = data.logs     || {};
-      state.topics   = data.topics   || {};
-      state.openDiscs= data.openDiscs|| {};
-    }
-    render();
-    setSync('saved', '● sincronizado');
-  }, err => {
-    setSync('error', '✕ sem conexão');
-    console.error(err);
-  });
-}
-
-// ── Lock screen ───────────────────────────────────────────────────────────────
-window.tryUnlock = function() {
-  const val = document.getElementById('pinInput').value;
-  if (val === CORRECT_PASSWORD) {
-    document.getElementById('lockScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    listenFirestore();
+// ── Lock ──────────────────────────────────────────────────────────────────────
+window.tryUnlock = ()=>{
+  if(document.getElementById('pinInput').value===PASSWORD){
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    listen();
   } else {
-    document.getElementById('lockError').textContent = 'Senha incorreta. Tente novamente.';
-    document.getElementById('pinInput').value = '';
+    document.getElementById('lockError').textContent='Senha incorreta.';
+    document.getElementById('pinInput').value='';
   }
 };
 
+// ── Tab switching ─────────────────────────────────────────────────────────────
+window.switchTab = id=>{
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{ b.classList.toggle('active', ['maio','junho','topicos','registrar'][i]===id); });
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+};
+
 // ── Computed ──────────────────────────────────────────────────────────────────
-function getHoursByDisc() {
-  const h = {};
-  DISCIPLINES.forEach(d => h[d.id] = 0);
-  Object.values(state.logs).forEach(l => {
-    if (h[l.disc] !== undefined) h[l.disc] += l.hours;
-  });
-  return h;
-}
-
-function getHoursByDay() {
-  const h = {};
-  Object.values(state.logs).forEach(l => {
-    h[l.day] = (h[l.day] || 0) + l.hours;
-  });
-  return h;
-}
-
-function getTotalHours() { return Object.values(state.logs).reduce((s,l) => s+l.hours, 0); }
-
-function getDaysStudied() { return new Set(Object.values(state.logs).map(l=>l.day)).size; }
-
-function getTopicStats() {
-  let total=0, done=0;
-  Object.keys(TOPICS).forEach(disc => {
-    TOPICS[disc].forEach((_,i) => {
-      total++;
-      if (state.topics[`${disc}_${i}`]) done++;
-    });
-  });
-  return { total, done };
-}
-
-function getDaysLeft() {
-  const exam = new Date('2026-08-02T00:00:00');
-  const now  = new Date(); now.setHours(0,0,0,0);
-  return Math.max(0, Math.round((exam-now)/86400000));
-}
+function getHoursByDisc(){ const h={}; DISCIPLINES.forEach(d=>h[d.id]=0); Object.values(state.logs).forEach(l=>{ if(h[l.disc]!==undefined) h[l.disc]+=l.hours; }); return h; }
+function getHoursByDay(month){ const h={}; Object.values(state.logs).filter(l=>l.month===month).forEach(l=>{ h[l.day]=(h[l.day]||0)+l.hours; }); return h; }
+function getTotalHours(){ return Object.values(state.logs).reduce((s,l)=>s+l.hours,0); }
+function getDaysStudied(){ return new Set(Object.values(state.logs).map(l=>l.month+'_'+l.day)).size; }
+function getTopicStats(){ let total=0,done=0; Object.keys(TOPICS).forEach(disc=>{ TOPICS[disc].forEach((_,i)=>{ total++; if(state.topics[`${disc}_${i}`]) done++; }); }); return {total,done}; }
+function getDaysLeft(){ const exam=new Date('2026-08-01'); const now=new Date(); now.setHours(0,0,0,0); return Math.max(0,Math.round((exam-now)/86400000)); }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-function render() {
-  renderStats(); renderBars(); renderCalendar(); renderTopics(); renderLogs();
+function render(){ renderStats(); renderBars(); renderCalendar('maio',MAY_PLAN,MAY_OFFSET,31,'calMaio'); renderCalendar('junho',JUN_PLAN,JUN_OFFSET,30,'calJunho'); renderTopics(); renderLogs(); }
+
+function renderStats(){
+  const h=getTotalHours(), {total,done}=getTopicStats();
+  document.getElementById('totalHours').textContent=h%1===0?h+'h':h.toFixed(1)+'h';
+  document.getElementById('totalDays').textContent=getDaysStudied();
+  document.getElementById('topicsPct').textContent=total?Math.round(done/total*100)+'%':'0%';
+  document.getElementById('topicsCount').textContent=`${done} de ${total}`;
+  document.getElementById('daysLeft').textContent=getDaysLeft();
 }
 
-function renderStats() {
-  const h = getTotalHours();
-  const {total,done} = getTopicStats();
-  document.getElementById('totalHours').textContent = h%1===0 ? h+'h' : h.toFixed(1)+'h';
-  document.getElementById('totalDays').textContent  = getDaysStudied();
-  document.getElementById('topicsPct').textContent  = total ? Math.round(done/total*100)+'%' : '0%';
-  document.getElementById('topicsCount').textContent= `${done} de ${total}`;
-  document.getElementById('daysLeft').textContent   = getDaysLeft();
-}
-
-function renderBars() {
-  const h = getHoursByDisc();
-  document.getElementById('disciplineBars').innerHTML = DISCIPLINES.map(d => {
-    const hrs = h[d.id]||0;
-    const pct = Math.min(100, Math.round((hrs/d.targetH)*100));
+function renderBars(){
+  const h=getHoursByDisc();
+  document.getElementById('disciplineBars').innerHTML=DISCIPLINES.map(d=>{
+    const hrs=h[d.id]||0, pct=Math.min(100,Math.round((hrs/d.targetH)*100));
     return `<div class="disc-row">
       <div class="disc-name" style="color:${d.color}">${d.name}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
@@ -632,47 +559,33 @@ function renderBars() {
   }).join('');
 }
 
-function renderCalendar() {
-  const byDay = getHoursByDay();
-  const today = new Date().getDate();
-  const isThisMonth = new Date().getMonth()===4 && new Date().getFullYear()===2026;
-  let html = '<div class="cal-empty"></div>'.repeat(5); // May 1 = Thursday → offset 4... wait May 1 2026 = Thursday = index 4
-
-  for (let day=1; day<=31; day++) {
-    const plan = MAY_PLAN[day]||{type:'weekend',disc:null,label:''};
-    const logged = byDay[day]||0;
-    const disc = plan.disc ? DISCIPLINES.find(d=>d.id===plan.disc) : null;
-    const isToday = isThisMonth && day===today;
-
-    let cls = 'cal-day';
-    if (plan.type==='plantao'||plan.type==='feriado') cls += ' plantao';
-    else if (plan.type==='pos-plantao') cls += ' pos-plantao';
-    else if (plan.type==='weekend') cls += ' weekend';
-    if (isToday) cls += ' today';
-
-    const discHtml = disc
-      ? `<div class="day-disc" style="color:${disc.color}">${plan.label}</div>`
-      : `<div class="day-disc" style="color:var(--muted)">${plan.label}</div>`;
-
-    const dotCls = logged>0 ? 'hours-dot logged' : 'hours-dot';
-    const hoursHtml = logged>0
-      ? `<div class="day-hours-logged"><span class="${dotCls}"></span>${logged.toFixed(1)}h</div>`
-      : plan.hours ? `<div class="day-hours-logged"><span class="${dotCls}"></span>meta: ${plan.hours}h</div>` : '';
-
-    html += `<div class="${cls}">
-      <div class="day-num">${day}</div>
-      ${discHtml}
-      ${hoursHtml}
-    </div>`;
+function renderCalendar(month, plan, offset, days, containerId){
+  const byDay=getHoursByDay(month);
+  const now=new Date(); const isNow=month==='maio'?now.getMonth()===4:now.getMonth()===5;
+  let html='<div class="cal-empty"></div>'.repeat(offset);
+  for(let day=1;day<=days;day++){
+    const p=plan[day]||{type:'estudo',disc:null,label:'',hours:0};
+    const logged=byDay[day]||0;
+    const disc=p.disc?DISCIPLINES.find(d=>d.id===p.disc):null;
+    const isToday=isNow&&day===now.getDate()&&now.getFullYear()===2026;
+    let cls='cal-day';
+    if(p.type==='plantao'||p.type==='feriado') cls+=' plantao';
+    else if(p.type==='pos-plantao') cls+=' pos-plantao';
+    else if(p.type==='weekend') cls+=' weekend';
+    if(isToday) cls+=' today';
+    const discHtml=disc?`<div class="day-disc" style="color:${disc.color}">${p.label}</div>`:`<div class="day-disc" style="color:var(--muted)">${p.label}</div>`;
+    const dotCls=logged>0?'hours-dot logged':'hours-dot';
+    const hLabel=logged>0?`${logged.toFixed(1)}h`:p.hours?`meta: ${p.hours}h`:'';
+    html+=`<div class="${cls}"><div class="day-num">${day}</div>${discHtml}${hLabel?`<div class="day-hours-logged"><span class="${dotCls}"></span>${hLabel}</div>`:''}</div>`;
   }
-  document.getElementById('calendarGrid').innerHTML = html;
+  document.getElementById(containerId).innerHTML=html;
 }
 
-function renderTopics() {
-  document.getElementById('topicsContainer').innerHTML = DISCIPLINES.map(d => {
-    const topics = TOPICS[d.id]||[];
-    const doneCount = topics.filter((_,i)=>state.topics[`${d.id}_${i}`]).length;
-    const isOpen = state.openDiscs[d.id];
+function renderTopics(){
+  document.getElementById('topicsContainer').innerHTML=DISCIPLINES.map(d=>{
+    const topics=TOPICS[d.id]||[];
+    const doneCount=topics.filter((_,i)=>state.topics[`${d.id}_${i}`]).length;
+    const isOpen=state.openDiscs[d.id];
     return `<div class="discipline-block ${isOpen?'open':''}" id="disc_${d.id}">
       <div class="disc-header" onclick="toggleDisc('${d.id}')">
         <div class="disc-header-left">
@@ -686,79 +599,45 @@ function renderTopics() {
         </div>
       </div>
       <div class="topics-list">
-        ${topics.map((t,i)=>{
-          const key=`${d.id}_${i}`, done=state.topics[key];
-          return `<div class="topic-item ${done?'done-item':''}" onclick="toggleTopic('${key}')">
-            <div class="topic-check ${done?'done':''}"></div>
-            <div class="topic-text">${t}</div>
-          </div>`;
-        }).join('')}
+        ${topics.map((t,i)=>{ const key=`${d.id}_${i}`,done=state.topics[key]; return `<div class="topic-item ${done?'done-item':''}" onclick="toggleTopic('${key}')"><div class="topic-check ${done?'done':''}"></div><div class="topic-text">${t}</div></div>`; }).join('')}
       </div>
     </div>`;
   }).join('');
 }
 
-function renderLogs() {
-  const logs = Object.entries(state.logs).sort((a,b)=>b[1].day-a[1].day);
-  if (!logs.length) {
-    document.getElementById('logHistory').innerHTML =
-      '<div style="font-family:Space Mono,monospace;font-size:0.72rem;color:var(--muted)">Nenhum registro ainda.</div>';
-    return;
-  }
-  document.getElementById('logHistory').innerHTML = logs.map(([id,l])=>{
-    const disc = DISCIPLINES.find(d=>d.id===l.disc);
-    const color = disc ? disc.color : 'var(--text)';
-    const name  = disc ? disc.name  : l.disc;
-    return `<div class="log-entry">
-      <span class="log-entry-date">dia ${l.day}</span>
-      <span class="log-entry-disc" style="color:${color}">${name}</span>
-      <span class="log-entry-hours">${l.hours}h</span>
-      <span class="log-entry-note">${l.note||''}</span>
-      <button class="delete-btn" onclick="deleteLog('${id}')">✕</button>
-    </div>`;
+function renderLogs(){
+  const logs=Object.entries(state.logs).sort((a,b)=>{ const ma=a[1].month==='junho'?6:5,mb=b[1].month==='junho'?6:5; return mb!==ma?mb-ma:b[1].day-a[1].day; });
+  if(!logs.length){ document.getElementById('logHistory').innerHTML='<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">Nenhum registro ainda.</div>'; return; }
+  document.getElementById('logHistory').innerHTML=logs.map(([id,l])=>{
+    const disc=DISCIPLINES.find(d=>d.id===l.disc); const color=disc?disc.color:'var(--text)'; const name=disc?disc.name:l.disc;
+    return `<div class="log-entry"><span class="log-entry-date">${l.month||'maio'} ${l.day}</span><span class="log-entry-disc" style="color:${color}">${name}</span><span class="log-entry-hours">${l.hours}h</span><span class="log-entry-note">${l.note||''}</span><button class="delete-btn" onclick="deleteLog('${id}')">✕</button></div>`;
   }).join('');
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
-window.toggleDisc = async function(id) {
-  state.openDiscs[id] = !state.openDiscs[id];
-  renderTopics();
-  await saveToFirestore({ openDiscs: state.openDiscs });
-};
+window.toggleDisc=async id=>{ state.openDiscs[id]=!state.openDiscs[id]; renderTopics(); await save({openDiscs:state.openDiscs}); };
 
-window.toggleTopic = async function(key) {
-  state.topics[key] = !state.topics[key];
-  renderStats(); renderTopics();
-  await saveToFirestore({ topics: state.topics });
-};
+window.toggleTopic=async key=>{ state.topics[key]=!state.topics[key]; renderStats(); renderTopics(); await save({topics:state.topics}); };
 
-window.addLog = async function() {
-  const day   = parseInt(document.getElementById('logDay').value);
-  const disc  = document.getElementById('logDisc').value;
-  const hours = parseFloat(document.getElementById('logHours').value);
-  const note  = document.getElementById('logNote').value.trim();
-
-  if (!day||day<1||day>31||!hours||hours<=0) {
-    alert('Preencha o dia e as horas corretamente.'); return;
-  }
-
-  const id = Date.now().toString();
-  state.logs[id] = { day, disc, hours, note };
+window.addLog=async()=>{
+  const month=document.getElementById('logMonth').value;
+  const day=parseInt(document.getElementById('logDay').value);
+  const disc=document.getElementById('logDisc').value;
+  const hours=parseFloat(document.getElementById('logHours').value);
+  const note=document.getElementById('logNote').value.trim();
+  if(!day||day<1||day>31||!hours||hours<=0){ alert('Preencha o dia e as horas corretamente.'); return; }
+  const id=Date.now().toString();
+  state.logs[id]={month,day,disc,hours,note};
   render();
-  await saveToFirestore({ [`logs.${id}`]: { day, disc, hours, note } });
-
-  document.getElementById('logDay').value   = '';
-  document.getElementById('logHours').value = '';
-  document.getElementById('logNote').value  = '';
+  await save({[`logs.${id}`]:{month,day,disc,hours,note}});
+  document.getElementById('logDay').value='';
+  document.getElementById('logHours').value='';
+  document.getElementById('logNote').value='';
 };
 
-window.deleteLog = async function(id) {
-  delete state.logs[id];
-  render();
-  // Remove the specific key using deleteField
-  const ref = doc(db, 'estudos', 'maio2026');
-  const { updateDoc, deleteField: df } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
-  await updateDoc(ref, { [`logs.${id}`]: df() });
+window.deleteLog=async id=>{
+  delete state.logs[id]; render();
+  await updateDoc(doc(db,'estudos','plano2026'),{[`logs.${id}`]:deleteField()});
 };
 </script>
 </body>
