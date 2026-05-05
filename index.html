@@ -550,8 +550,25 @@ function setSync(mode, msg){ const el=document.getElementById('syncStatus'); el.
 
 async function save(patch){
   setSync('syncing','↑ salvando...');
-  try{ await setDoc(userDoc(), patch, {merge:true}); setSync('saved','● sincronizado'); }
-  catch(e){ setSync('error','✕ erro ao salvar'); console.error(e); }
+  try{
+    // Se tem chaves com ponto (logs.id), usa updateDoc
+    const hasDotKeys = Object.keys(patch).some(k => k.includes('.'));
+    if(hasDotKeys){
+      await updateDoc(userDoc(), patch);
+    } else {
+      await setDoc(userDoc(), patch, {merge:true});
+    }
+    setSync('saved','● sincronizado');
+  } catch(e){
+    // Se doc não existe ainda, cria com setDoc
+    if(e.code === 'not-found'){
+      await setDoc(userDoc(), patch, {merge:true});
+      setSync('saved','● sincronizado');
+    } else {
+      setSync('error','✕ erro ao salvar');
+      console.error(e);
+    }
+  }
 }
 
 function listen(){
