@@ -389,35 +389,40 @@ onAuthStateChanged(auth,user=>{
 
 // ── Debt computation ──────────────────────────────────────────────────────────
 // Returns { debtByDisc: {discId: totalDebtHours}, expectedByDisc: {discId: hoursExpectedByNow} }
+// ── Debt computation ──────────────────────────────────────────────────────────
+// Nova lógica de cálculo de métricas para refletir a dívida global corretamente
 function computeMetrics(){
   const now=new Date();now.setHours(0,0,0,0);
 
-  // Build logged hours per day
-  const loggedByDay={};
-  Object.values(state.logs).forEach(l=>{const k=`${l.month}_${l.day}`;loggedByDay[k]=(loggedByDay[k]||0)+l.hours;});
+  // Usa a função getHoursByDisc() já existente para saber o total geral estudado por matéria
+  const totalStudied = getHoursByDisc();
 
-  // All days in sequence
   const allDays=[];
   for(let d=1;d<=31;d++) allDays.push({month:'maio',day:d,plan:MAY_PLAN[d]||null});
   for(let d=1;d<=30;d++) allDays.push({month:'junho',day:d,plan:JUN_PLAN[d]||null});
 
-  // Accumulate expected hours per disc up to today
+  // Acumula total esperado por disciplina até a data de hoje (inclusa)
   const expectedByDisc={};
   DISCIPLINES.forEach(d=>expectedByDisc[d.id]=0);
-
-  // Total accumulated deficit per disc (for bar visualization)
-  const debtByDisc={};
-  DISCIPLINES.forEach(d=>debtByDisc[d.id]=0);
 
   allDays.forEach(({month,day,plan})=>{
     if(!plan||!plan.hours||!plan.disc) return;
     const dayDate=new Date(2026,month==='maio'?4:5,day);
-    if(dayDate>=now) return; // only past days
-    expectedByDisc[plan.disc]=(expectedByDisc[plan.disc]||0)+plan.hours;
-    const k=`${month}_${day}`;
-    const logged=loggedByDay[k]||0;
-    const deficit=Math.max(0,plan.hours-logged);
-    if(deficit>0) debtByDisc[plan.disc]=(debtByDisc[plan.disc]||0)+deficit;
+    
+    // CORREÇÃO 1: Antes era >= (descartava o dia de hoje). Agora é > para incluir a meta de hoje!
+    if(dayDate>now) return; 
+
+    expectedByDisc[plan.disc] += plan.hours;
+  });
+
+  // CORREÇÃO 2: A dívida agora é baseada no saldo global (Total Esperado até Hoje - Total Estudado)
+  const debtByDisc={};
+  DISCIPLINES.forEach(d=>{
+    const expected = expectedByDisc[d.id] || 0;
+    const studied = totalStudied[d.id] || 0;
+    
+    // Se o esperado for maior que o estudado, esse é o saldo negativo global
+    debtByDisc[d.id] = Math.max(0, expected - studied);
   });
 
   return {debtByDisc, expectedByDisc};
