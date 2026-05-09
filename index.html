@@ -611,10 +611,16 @@ function renderCalendar(month,plan,offset,days,containerId){
     // All days are clickable now
     const clickAttr=`onclick="openModal('${month}',${day},'${p.disc||''}')"`;
 
-    // Disc label
+    // --- TRECHO ADICIONADO PARA RÓTULOS DE PLANTÃO ---
+    let typeLabel = '';
+    if (p.type === 'plantao') typeLabel = '<div style="font-size:0.45rem; color:var(--text-dim); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Plantão</div>';
+    else if (p.type === 'pos-plantao') typeLabel = '<div style="font-size:0.45rem; color:var(--text-dim); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Pós-plantão</div>';
+
+    // Disc label (modificado para incluir a variável typeLabel)
     const discHtml=disc
-      ?`<div class="day-disc" style="color:${disc.color}">${p.label}</div>`
-      :(p.label?`<div class="day-disc" style="color:var(--muted)">${p.label}</div>`:'');
+      ?`${typeLabel}<div class="day-disc" style="color:${disc.color}">${p.label}</div>`
+      :(p.label?`${typeLabel}<div class="day-disc" style="color:var(--muted)">${p.label}</div>`:'');
+    // -------------------------------------------------
 
     // Meta line
     const metaHtml=meta>0?`<div class="day-meta">meta: ${meta}h</div>`:'';
