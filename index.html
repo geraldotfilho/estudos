@@ -172,7 +172,7 @@
         <option value="contabilidade">Contabilidade Av.</option>
         <option value="legislacao">Leg. Tributária</option>
         <option value="financas">Finanças Públicas</option>
-        <option value="basico">Ciclo Básico</option>
+        <option value="discursivas">Discursivas e revisão</option>
       </select>
     </div>
     <div class="modal-field"><label class="modal-label">Horas estudadas</label><input type="number" class="modal-input" id="modalHours" min="0.5" max="12" step="0.5" placeholder="ex: 2.5"></div>
@@ -186,26 +186,28 @@
 <div class="container" id="mainApp" style="display:none">
   <header>
     <div class="title-block">
-      <h1>Plano de Estudos<br><span>Sefaz CE · Mai–Jun 2026</span></h1>
+      <h1>Plano de Estudos<br><span>Sefaz CE · Mai–Jul 2026</span></h1>
       <div class="title-meta">Auditor Fiscal — Gestão Fazendária | Prova: 01/08/2026 <span id="userLabel"></span><button class="signout-btn" onclick="doSignOut()">sair</button></div>
     </div>
     <div class="stats-bar">
-      <div class="stat"><div class="stat-label">Horas estudadas</div><div class="stat-value" id="totalHours">0h</div><div class="stat-sub">meta: ~222h</div></div>
-      <div class="stat"><div class="stat-label">Dias estudados</div><div class="stat-value" id="totalDays">0</div><div class="stat-sub">mai + jun</div></div>
+      <div class="stat"><div class="stat-label">Horas estudadas</div><div class="stat-value" id="totalHours">0h</div><div class="stat-sub">meta: ~244h</div></div>
+      <div class="stat"><div class="stat-label">Dias estudados</div><div class="stat-value" id="totalDays">0</div><div class="stat-sub">mai a jul</div></div>
       <div class="stat"><div class="stat-label">Tópicos cobertos</div><div class="stat-value" id="topicsPct">0%</div><div class="stat-sub" id="topicsCount">0 de 0</div></div>
       <div class="stat"><div class="stat-label">Dias até a prova</div><div class="stat-value" id="daysLeft">—</div><div class="stat-sub">01 de agosto</div></div>
     </div>
   </header>
 
+  <section class="progress-section"><div class="section-title">⬡ Progresso por Disciplina</div><div id="disciplineBars"></div></section>
+
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('maio')">Maio</button>
     <button class="tab-btn" onclick="switchTab('junho')">Junho</button>
+    <button class="tab-btn" onclick="switchTab('julho')">Julho</button>
     <button class="tab-btn" onclick="switchTab('topicos')">Tópicos</button>
     <button class="tab-btn" onclick="switchTab('registrar')">Registrar</button>
   </div>
 
   <div class="tab-panel active" id="tab-maio">
-    <section class="progress-section"><div class="section-title">⬡ Progresso por Disciplina</div><div id="disciplineBars"></div></section>
     <div class="section-title">◈ Calendário — Maio 2026 <span style="color:var(--muted);font-size:.6rem">(clique em qualquer dia para registrar)</span></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:#f0c040"></div>Fluência</div>
@@ -235,6 +237,17 @@
     <div class="calendar-grid" id="calJunho"></div>
   </div>
 
+  <div class="tab-panel" id="tab-julho">
+    <div class="section-title">◈ Calendário — Julho 2026 <span style="color:var(--muted);font-size:.6rem">(clique em qualquer dia para registrar)</span></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#f43f5e"></div>Disc. e Revisão</div>
+      <div class="legend-item">🏆 meta cumprida</div>
+      <div class="legend-item">🏆🏆 meta superada</div>
+    </div>
+    <div class="week-labels"><div class="week-label">Dom</div><div class="week-label">Seg</div><div class="week-label">Ter</div><div class="week-label">Qua</div><div class="week-label">Qui</div><div class="week-label">Sex</div><div class="week-label">Sáb</div></div>
+    <div class="calendar-grid" id="calJulho"></div>
+  </div>
+
   <div class="tab-panel" id="tab-topicos">
     <div class="section-title">◆ Tópicos do Edital — clique para marcar como concluído</div>
     <div id="topicsContainer"></div>
@@ -244,9 +257,9 @@
     <section class="log-section">
       <div class="section-title" style="margin-bottom:16px">✎ Registrar sessão de estudo</div>
       <div class="log-form">
-        <div class="form-field"><label class="form-label">Mês</label><select class="form-select" id="logMonth" style="width:95px"><option value="maio">Maio</option><option value="junho">Junho</option></select></div>
+        <div class="form-field"><label class="form-label">Mês</label><select class="form-select" id="logMonth" style="width:95px"><option value="maio">Maio</option><option value="junho">Junho</option><option value="julho">Julho</option></select></div>
         <div class="form-field"><label class="form-label">Dia</label><input type="number" class="form-input" id="logDay" min="1" max="31" placeholder="dia" style="width:62px"></div>
-        <div class="form-field"><label class="form-label">Disciplina</label><select class="form-select" id="logDisc" style="width:180px"><option value="fluencia">Fluência de Dados</option><option value="tributario">Dir. Tributário</option><option value="contabilidade">Contabilidade Av.</option><option value="legislacao">Leg. Tributária</option><option value="financas">Finanças Públicas</option><option value="basico">Ciclo Básico</option></select></div>
+        <div class="form-field"><label class="form-label">Disciplina</label><select class="form-select" id="logDisc" style="width:180px"><option value="fluencia">Fluência de Dados</option><option value="tributario">Dir. Tributário</option><option value="contabilidade">Contabilidade Av.</option><option value="legislacao">Leg. Tributária</option><option value="financas">Finanças Públicas</option><option value="discursivas">Discursivas e revisão</option></select></div>
         <div class="form-field"><label class="form-label">Horas</label><input type="number" class="form-input" id="logHours" min="0.5" max="12" step="0.5" placeholder="h" style="width:62px"></div>
         <div class="form-field"><label class="form-label">Obs.</label><input type="text" class="form-input" id="logNote" placeholder="ex: CTN arts 1-50" style="width:185px"></div>
         <button class="log-btn" onclick="addLog()">Registrar</button>
@@ -269,11 +282,12 @@ let currentUser=null,unsubSnap=null;
 
 // ── Static data ───────────────────────────────────────────────────────────────
 const DISCIPLINES=[
-  {id:'fluencia',     name:'Fluência de Dados', color:'#f0c040',targetH:28,questoes:10},
-  {id:'tributario',   name:'Dir. Tributário',   color:'#4fc3f7',targetH:60,questoes:20},
-  {id:'contabilidade',name:'Contabilidade Av.', color:'#a78bfa',targetH:60,questoes:20},
-  {id:'legislacao',   name:'Leg. Tributária',   color:'#34d399',targetH:55,questoes:20},
+  {id:'fluencia',     name:'Fluência de Dados', color:'#f0c040',targetH:36,questoes:10},
+  {id:'tributario',   name:'Dir. Tributário',   color:'#4fc3f7',targetH:50,questoes:20},
+  {id:'contabilidade',name:'Contabilidade Av.', color:'#a78bfa',targetH:50,questoes:20},
+  {id:'legislacao',   name:'Leg. Tributária',   color:'#34d399',targetH:40,questoes:20},
   {id:'financas',     name:'Finanças Públicas', color:'#fb923c',targetH:20,questoes:10},
+  {id:'discursivas',  name:'Disc. e Revisão',   color:'#f43f5e',targetH:48,questoes:0},
 ];
 
 const MAY_PLAN={
@@ -285,62 +299,81 @@ const MAY_PLAN={
   6:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
   7:{type:'pos-plantao', disc:'fluencia',     label:'Fluência de Dados', hours:3},
   8:{type:'estudo',      disc:'fluencia',     label:'Fluência de Dados', hours:5.5},
-  9:{type:'estudo',      disc:'fluencia',     label:'Fluência de Dados', hours:5.5},
-  10:{type:'weekend',    disc:'fluencia',     label:'Fluência de Dados', hours:4},
-  11:{type:'weekend',    disc:'fluencia',     label:'Fluência de Dados', hours:4},
-  12:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
-  13:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
-  14:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
-  15:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
-  16:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:4},
-  17:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:4},
-  18:{type:'plantao',    disc:null,           label:'Plantão',           hours:0},
-  19:{type:'plantao',    disc:null,           label:'Plantão',           hours:0},
-  20:{type:'plantao',    disc:null,           label:'Plantão',           hours:0},
-  21:{type:'pos-plantao',disc:'tributario',   label:'Dir. Tributário',   hours:3},
-  22:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
-  23:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5.5},
-  24:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:4},
-  25:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:4},
-  26:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  27:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  28:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  29:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  30:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  31:{type:'weekend',    disc:'contabilidade',label:'Contabilidade',     hours:4},
+  9:{type:'weekend',     disc:'fluencia',     label:'Fluência de Dados', hours:3},
+  10:{type:'weekend',    disc:'fluencia',     label:'Fluência de Dados', hours:3},
+  11:{type:'estudo',     disc:'fluencia',     label:'Fluência de Dados', hours:5},
+  12:{type:'estudo',     disc:'fluencia',     label:'Fluência de Dados', hours:5},
+  13:{type:'estudo',     disc:'fluencia',     label:'Fluência de Dados', hours:5},
+  14:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5},
+  15:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5},
+  16:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:3},
+  17:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:3},
+  18:{type:'plantao',    disc:'tributario',   label:'Dir. Tributário',   hours:1},
+  19:{type:'plantao',    disc:'tributario',   label:'Dir. Tributário',   hours:1},
+  20:{type:'plantao',    disc:'tributario',   label:'Dir. Tributário',   hours:1},
+  21:{type:'pos-plantao',disc:'tributario',   label:'Dir. Tributário',   hours:2},
+  22:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5},
+  23:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:3},
+  24:{type:'weekend',    disc:'tributario',   label:'Dir. Tributário',   hours:3},
+  25:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5},
+  26:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5},
+  27:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5},
+  28:{type:'estudo',     disc:'tributario',   label:'Dir. Tributário',   hours:5},
+  29:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5},
+  30:{type:'weekend',    disc:'contabilidade',label:'Contabilidade',     hours:3},
+  31:{type:'weekend',    disc:'contabilidade',label:'Contabilidade',     hours:3},
 };
 
 const JUN_PLAN={
-  1:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
-  2:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
-  3:{type:'plantao',     disc:null,           label:'Plantão',           hours:0},
-  4:{type:'pos-plantao', disc:'contabilidade',label:'Contabilidade',     hours:3},
-  5:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  6:{type:'weekend',     disc:'contabilidade',label:'Contabilidade',     hours:4},
-  7:{type:'weekend',     disc:'contabilidade',label:'Contabilidade',     hours:4},
-  8:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  9:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  10:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  11:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  12:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5.5},
-  13:{type:'weekend',    disc:'legislacao',   label:'Leg. Tributária',   hours:4},
-  14:{type:'weekend',    disc:'legislacao',   label:'Leg. Tributária',   hours:4},
-  15:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
-  16:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
-  17:{type:'plantao',    disc:null,           label:'Plantão',           hours:0},
-  18:{type:'pos-plantao',disc:'legislacao',   label:'Leg. Tributária',   hours:3},
-  19:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
-  20:{type:'weekend',    disc:'legislacao',   label:'Leg. Tributária',   hours:4},
-  21:{type:'plantao',    disc:null,           label:'Plantão',           hours:0},
-  22:{type:'plantao',    disc:null,           label:'Plantão',           hours:0},
-  23:{type:'pos-plantao',disc:'legislacao',   label:'Leg. Tributária',   hours:3},
-  24:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5.5},
-  25:{type:'estudo',     disc:'financas',     label:'Finanças Públicas', hours:5.5},
-  26:{type:'estudo',     disc:'financas',     label:'Finanças Públicas', hours:5.5},
-  27:{type:'weekend',    disc:'financas',     label:'Finanças Públicas', hours:4},
-  28:{type:'weekend',    disc:'financas',     label:'Finanças Públicas', hours:4},
-  29:{type:'estudo',     disc:'financas',     label:'Finanças Públicas', hours:5.5},
-  30:{type:'estudo',     disc:'financas',     label:'Finanças Públicas', hours:5.5},
+  1:{type:'plantao',     disc:'contabilidade',label:'Contabilidade',     hours:1},
+  2:{type:'plantao',     disc:'contabilidade',label:'Contabilidade',     hours:1},
+  3:{type:'plantao',     disc:'contabilidade',label:'Contabilidade',     hours:1},
+  4:{type:'pos-plantao', disc:'contabilidade',label:'Contabilidade',     hours:2},
+  5:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5},
+  6:{type:'weekend',     disc:'contabilidade',label:'Contabilidade',     hours:3},
+  7:{type:'weekend',     disc:'contabilidade',label:'Contabilidade',     hours:3},
+  8:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5},
+  9:{type:'estudo',      disc:'contabilidade',label:'Contabilidade',     hours:5},
+  10:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5},
+  11:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5},
+  12:{type:'estudo',     disc:'contabilidade',label:'Contabilidade',     hours:5},
+  13:{type:'weekend',    disc:'legislacao',   label:'Leg. Tributária',   hours:3},
+  14:{type:'weekend',    disc:'legislacao',   label:'Leg. Tributária',   hours:3},
+  15:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5},
+  16:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5},
+  17:{type:'plantao',    disc:'legislacao',   label:'Leg. Tributária',   hours:1},
+  18:{type:'pos-plantao',disc:'legislacao',   label:'Leg. Tributária',   hours:2},
+  19:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5},
+  20:{type:'weekend',    disc:'legislacao',   label:'Leg. Tributária',   hours:3},
+  21:{type:'plantao',    disc:'legislacao',   label:'Leg. Tributária',   hours:1},
+  22:{type:'plantao',    disc:'legislacao',   label:'Leg. Tributária',   hours:1},
+  23:{type:'pos-plantao',disc:'legislacao',   label:'Leg. Tributária',   hours:2},
+  24:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5},
+  25:{type:'estudo',     disc:'legislacao',   label:'Leg. Tributária',   hours:5},
+  26:{type:'estudo',     disc:'financas',     label:'Finanças Públicas', hours:5},
+  27:{type:'weekend',    disc:'financas',     label:'Finanças Públicas', hours:3},
+  28:{type:'weekend',    disc:'financas',     label:'Finanças Públicas', hours:3},
+  29:{type:'estudo',     disc:'financas',     label:'Finanças Públicas', hours:5},
+  30:{type:'estudo',     disc:'financas',     label:'Finanças Públicas', hours:5},
+};
+
+const JUL_PLAN={
+  1:{type:'estudo',      disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  2:{type:'estudo',      disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  3:{type:'estudo',      disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  4:{type:'weekend',     disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  5:{type:'weekend',     disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  6:{type:'estudo',      disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  7:{type:'estudo',      disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  8:{type:'estudo',      disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  9:{type:'estudo',      disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  10:{type:'estudo',     disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  11:{type:'weekend',    disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  12:{type:'weekend',    disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  13:{type:'estudo',     disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  14:{type:'estudo',     disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  15:{type:'estudo',     disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
+  16:{type:'estudo',     disc:'discursivas',  label:'Disc. e Revisão',   hours:3},
 };
 
 const TOPICS={
@@ -349,6 +382,7 @@ const TOPICS={
   contabilidade:['Políticas Contábeis, Mudança de Estimativa e Retificação de Erro (CPC 23)','Mensuração a Valor Justo: conceitos e tratamento contábil (CPC 46)','Ajuste a Valor Presente: conceitos e tratamento contábil (CPC 12)','Instrumentos Financeiros: conceito e tratamento contábil (CPCs 38/39/40/48)','Valores a receber; aplicações financeiras; empréstimos e debêntures','Propriedade para Investimento (CPC 28)','Operações de Arrendamento: reconhecimento e mensuração (CPC 06/R2)','Participações Societárias: coligadas e controladas (CPC 18/36)','MEP — mais valia, goodwill e compra com deságio','Subvenção e Assistência Governamentais (CPC 07)','Conversão de demonstrações — efeitos das taxas de câmbio (CPC 02)','Balanço Patrimonial: estrutura e classificação','Demonstração do Resultado: estrutura e classificação','Demonstração do Resultado Abrangente','Demonstração das Mutações do Patrimônio Líquido','Demonstração dos Fluxos de Caixa (CPC 03)','Demonstração do Valor Adicionado (CPC 09)','Conceitos gerais e terminologia de Custos','Classificação: diretos/indiretos, fixos/variáveis','Custeio por Absorção','Custeio Variável','Custeio Baseado em Atividades (ABC)','Departamentalização','Produção por ordem, contínua e conjunta','Custo Padrão: conceito, finalidades e tratamento contábil','Margem de Contribuição; CVL; ponto de equilíbrio contábil, econômico e financeiro'],
   legislacao:['Lei 18.665/2023 — ICMS-CE: disposições gerais','Decreto 33.327/2019 — RICMS-CE','ICMS: fato gerador, base de cálculo, alíquotas','ICMS: sujeitos passivos e substituição tributária','ICMS: imunidades, não incidência e isenções','ICMS: créditos, aproveitamento e estorno','Simples Nacional e ICMS (LC 123/2006; Resolução CGSN 140/2018)','LC 24/1975 — convênios e isenções interestaduais','LC 87/1996 — Lei Kandir','LC 105/2001 — sigilo das operações de instituições financeiras','LC 116/2003 — ISSQN e conflito de competência com o ICMS','LC 160/2017 — remissão de créditos e benefícios fiscais','LC 192/2022 — ICMS monofásico sobre combustíveis','Reforma Tributária: EC 132/2023 e LC 214/2025','Lei 15.812/2015 — ITCD-CE','Lei 12.023/1992 — IPVA-CE','LC 37/2003 — FECOP'],
   financas:['Objetivos, metas, abrangência e definição de Finanças Públicas','Visão clássica das funções do Estado; evolução das funções do Governo','Falhas de mercado, bens públicos e externalidades','O papel do Governo e os objetivos da política fiscal','Políticas alocativas, distributivas e de estabilização','Financiamento dos gastos públicos: tributação e equidade; tipos de tributos','Conceito de déficit público e seu financiamento','Resultado Fiscal do Governo — NFSP: resultado primário e nominal'],
+  discursivas:['Prática de discursivas — Fluência de Dados', 'Prática de discursivas — Dir. Tributário', 'Prática de discursivas — Contabilidade Av.', 'Prática de discursivas — Leg. Tributária', 'Prática de discursivas — Finanças Públicas', 'Revisão Geral do Edital', 'Simulado Final 1', 'Simulado Final 2']
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -388,8 +422,6 @@ onAuthStateChanged(auth,user=>{
 });
 
 // ── Debt computation ──────────────────────────────────────────────────────────
-// Returns { debtByDisc: {discId: totalDebtHours}, expectedByDisc: {discId: hoursExpectedByNow} }
-// ── Debt computation ──────────────────────────────────────────────────────────
 // Nova lógica de cálculo de métricas para refletir a dívida global corretamente
 function computeMetrics(){
   const now=new Date();now.setHours(0,0,0,0);
@@ -400,6 +432,7 @@ function computeMetrics(){
   const allDays=[];
   for(let d=1;d<=31;d++) allDays.push({month:'maio',day:d,plan:MAY_PLAN[d]||null});
   for(let d=1;d<=30;d++) allDays.push({month:'junho',day:d,plan:JUN_PLAN[d]||null});
+  for(let d=1;d<=16;d++) allDays.push({month:'julho',day:d,plan:JUL_PLAN[d]||null});
 
   // Acumula total esperado por disciplina até a data de hoje (inclusa)
   const expectedByDisc={};
@@ -407,7 +440,8 @@ function computeMetrics(){
 
   allDays.forEach(({month,day,plan})=>{
     if(!plan||!plan.hours||!plan.disc) return;
-    const dayDate=new Date(2026,month==='maio'?4:5,day);
+    const mOffset = month==='maio'?4:(month==='junho'?5:6);
+    const dayDate=new Date(2026,mOffset,day);
     
     // CORREÇÃO 1: Antes era >= (descartava o dia de hoje). Agora é > para incluir a meta de hoje!
     if(dayDate>now) return; 
@@ -430,7 +464,7 @@ function computeMetrics(){
 
 // ── Tab ───────────────────────────────────────────────────────────────────────
 window.switchTab=id=>{
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{b.classList.toggle('active',['maio','junho','topicos','registrar'][i]===id);});
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{b.classList.toggle('active',['maio','junho','julho','topicos','registrar'][i]===id);});
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
 };
@@ -438,9 +472,10 @@ window.switchTab=id=>{
 // ── Modal ─────────────────────────────────────────────────────────────────────
 function openModal(month,day,discId){
   modalContext={month,day,discId};
-  document.getElementById('modalTitle').textContent=`${month==='maio'?'Maio':'Junho'} ${day}`;
+  const monthNames = {maio: 'Maio', junho: 'Junho', julho: 'Julho'};
+  document.getElementById('modalTitle').textContent=`${monthNames[month]} ${day}`;
   const disc=DISCIPLINES.find(d=>d.id===discId);
-  const plan=month==='maio'?MAY_PLAN[day]:JUN_PLAN[day];
+  const plan=month==='maio'?MAY_PLAN[day]:(month==='junho'?JUN_PLAN[day]:JUL_PLAN[day]);
   let sub=disc?`Planejado: ${disc.name}`:'Dia livre';
   if(plan&&(plan.type==='plantao'||plan.type==='feriado')) sub='Plantão / dia extra';
   document.getElementById('modalSub').textContent=sub;
@@ -479,6 +514,7 @@ function render(){
   renderStats();renderBars();
   renderCalendar('maio',MAY_PLAN,5,31,'calMaio');
   renderCalendar('junho',JUN_PLAN,1,30,'calJunho');
+  renderCalendar('julho',JUL_PLAN,3,16,'calJulho');
   renderTopics();renderLogs();
 }
 
@@ -515,7 +551,7 @@ function renderBars(){
     return `<div class="disc-progress-block">
       <div class="disc-progress-header">
         <span class="disc-progress-name" style="color:${d.color}">${d.name}${debtLabel}</span>
-        <span class="disc-progress-meta">${d.questoes} questões</span>
+        <span class="disc-progress-meta">${d.questoes > 0 ? d.questoes + ' questões' : 'Prática'}</span>
       </div>
       <div class="dual-bars">
         <div class="bar-row">
@@ -544,7 +580,8 @@ function renderBars(){
 function renderCalendar(month,plan,offset,days,containerId){
   const byDay=getHoursByDay(month);
   const now=new Date();now.setHours(0,0,0,0);
-  const isCurrentMonth=(month==='maio'&&now.getMonth()===4)||(month==='junho'&&now.getMonth()===5);
+  const mIdx = month==='maio'?4:(month==='junho'?5:6);
+  const isCurrentMonth=now.getMonth()===mIdx;
   const todayDate=now.getDate(),isThisYear=now.getFullYear()===2026;
 
   let html='<div class="cal-empty"></div>'.repeat(offset);
@@ -553,7 +590,7 @@ function renderCalendar(month,plan,offset,days,containerId){
     const p=plan[day]||{type:'estudo',disc:null,label:'',hours:0};
     const logged=byDay[day]||0;
     const disc=p.disc?DISCIPLINES.find(d=>d.id===p.disc):null;
-    const dayDate=new Date(2026,month==='maio'?4:5,day);
+    const dayDate=new Date(2026,mIdx,day);
     const isPast=dayDate<now;
     const isToday=isCurrentMonth&&isThisYear&&day===todayDate;
     const isPlantaoType=p.type==='plantao'||p.type==='feriado';
@@ -623,7 +660,7 @@ function renderTopics(){
     const isOpen=state.openDiscs[d.id];
     return `<div class="discipline-block ${isOpen?'open':''}">
       <div class="disc-header" onclick="toggleDisc('${d.id}')">
-        <div class="disc-header-left"><div class="disc-dot" style="background:${d.color}"></div><div class="disc-header-name" style="color:${d.color}">${d.name}</div><div class="disc-header-meta">${d.questoes}q · meta ${d.targetH}h</div></div>
+        <div class="disc-header-left"><div class="disc-dot" style="background:${d.color}"></div><div class="disc-header-name" style="color:${d.color}">${d.name}</div><div class="disc-header-meta">${d.questoes > 0 ? d.questoes + 'q · ' : ''}meta ${d.targetH}h</div></div>
         <div class="disc-header-right"><div class="disc-completion" style="color:${d.color}">${doneCount}/${topics.length}</div><div class="chevron">▼</div></div>
       </div>
       <div class="topics-list">
@@ -634,7 +671,8 @@ function renderTopics(){
 }
 
 function renderLogs(){
-  const logs=Object.entries(state.logs).sort((a,b)=>{const ma=a[1].month==='junho'?6:5,mb=b[1].month==='junho'?6:5;return mb!==ma?mb-ma:b[1].day-a[1].day;});
+  const mWeights = {maio: 5, junho: 6, julho: 7};
+  const logs=Object.entries(state.logs).sort((a,b)=>{const ma=mWeights[a[1].month]||5,mb=mWeights[b[1].month]||5;return mb!==ma?mb-ma:b[1].day-a[1].day;});
   if(!logs.length){document.getElementById('logHistory').innerHTML='<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">Nenhum registro ainda.</div>';return;}
   document.getElementById('logHistory').innerHTML=logs.map(([id,l])=>{
     const disc=DISCIPLINES.find(d=>d.id===l.disc);const color=disc?disc.color:'var(--text)',name=disc?disc.name:l.disc;
