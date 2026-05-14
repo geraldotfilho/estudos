@@ -60,6 +60,26 @@
   .bar-pct{font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;width:70px;text-align:right;flex-shrink:0;line-height:1.4;}
   .bar-pct-sub{font-size:.55rem;opacity:.6;}
 
+  /* Efeito cintilante para horas extras (Overcharge) */
+  .bar-fill-extra {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.25);
+    background-image: linear-gradient(-45deg, rgba(255,255,255,0) 25%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 75%);
+    background-size: 20px 20px;
+    animation: cintilar 1s linear infinite;
+    z-index: 3;
+    transition: width 0.6s ease;
+    box-shadow: 0 0 5px rgba(255,255,255,0.4);
+  }
+  @keyframes cintilar {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 0; }
+  }
+
   /* ── Calendar ── */
   .legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
   .legend-item{display:flex;align-items:center;gap:5px;font-size:.62rem;color:var(--text-dim);font-family:'Space Mono',monospace;}
@@ -537,9 +557,17 @@ function renderBars(){
     const expected=expectedByDisc[d.id]||0; // where you should be by now
     const debt=debtByDisc[d.id]||0;         // total hours behind
 
-    // Hours bar: background = expected position (red tint), foreground = actual studied
     const expectedPct=Math.min(100,Math.round((expected/d.targetH)*100));
-    const studiedPct=Math.min(100,Math.round((studied/d.targetH)*100));
+    
+    // A barra real trava em 100% para não quebrar a UI
+    const baseStudiedPct=Math.min(100,Math.round((studied/d.targetH)*100));
+
+    // Lógica da camada EXTRA (transbordamento de horas)
+    let extraHtml = '';
+    if(studied > d.targetH) {
+      const extraPct = Math.min(100, Math.round(((studied - d.targetH)/d.targetH)*100));
+      extraHtml = `<div class="bar-fill-extra" style="width:${extraPct}%"></div>`;
+    }
 
     // Topics bar
     const{done,total}=topics[d.id];
@@ -547,6 +575,9 @@ function renderBars(){
 
     // Debt label
     const debtLabel=debt>0?`<span style="color:#f87171;font-size:.55rem;margin-left:4px">−${debt.toFixed(1)}h atrás</span>`:'';
+
+    // Se passou da meta, a contagem de texto ganha um brilho especial
+    const textStyle = studied > d.targetH ? `color:#f0c040; text-shadow: 0 0 8px rgba(240,192,64,0.4);` : `color:${d.color}`;
 
     return `<div class="disc-progress-block">
       <div class="disc-progress-header">
@@ -557,12 +588,11 @@ function renderBars(){
         <div class="bar-row">
           <span class="bar-label">horas</span>
           <div class="bar-track">
-            <!-- debt background: where you should be -->
             <div class="bar-fill-debt" style="width:${expectedPct}%;background:#c0392b"></div>
-            <!-- real studied: overlaps debt in discipline color -->
-            <div class="bar-fill-real" style="width:${studiedPct}%;background:${d.color}"></div>
+            <div class="bar-fill-real" style="width:${baseStudiedPct}%;background:${d.color}"></div>
+            ${extraHtml}
           </div>
-          <div class="bar-pct" style="color:${d.color}">
+          <div class="bar-pct" style="${textStyle}">
             ${studied.toFixed(1)}/${d.targetH}h
             ${expected>0?`<div class="bar-pct-sub" style="color:#f87171">esperado:${expected.toFixed(0)}h</div>`:''}
           </div>
