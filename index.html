@@ -540,20 +540,6 @@ function updateDynamicPlan() {
     };
   });
 
-  // Calculate actual studied hours for each discipline from all logs
-  const studiedHours = {};
-  disciplines.forEach(d => {
-    studiedHours[d.id] = Object.values(state.logs)
-      .filter(l => l.disc === d.id)
-      .reduce((sum, l) => sum + l.hours, 0);
-  });
-
-  // Remaining hours to allocate (sequential allocation from May 1st)
-  const remainingHours = {};
-  disciplines.forEach(d => {
-    remainingHours[d.id] = Math.max(0, d.targetH - studiedHours[d.id]);
-  });
-
   // Collect all days in order
   const allDays = [];
   const mOffsets = { maio: 4, junho: 5, julho: 6 };
@@ -587,12 +573,12 @@ function updateDynamicPlan() {
     }
   });
 
-  // Allocate remaining hours of disciplines sequentially
+  // Allocate total target hours of disciplines sequentially
   let normalDayIdx = 0;
   let preExamDayIdx = 0;
 
   disciplines.forEach(disc => {
-    let rem = remainingHours[disc.id];
+    let rem = disc.targetH;
 
     // 1. Allocate to normal study days
     while (rem > 0 && normalDayIdx < normalStudyDays.length) {
