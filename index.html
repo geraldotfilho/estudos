@@ -607,8 +607,15 @@ function updateDynamicPlan() {
     // 2. Spill over to pre-exam week days if still remaining
     while (rem > 0 && preExamDayIdx < preExamDays.length) {
       const dayInfo = preExamDays[preExamDayIdx];
-      const pDay = plan[dayInfo.month][dayInfo.day];
+      const key = `${dayInfo.month}_${dayInfo.day}`;
       
+      // Se o usuário travou a meta deste dia em 0, pula este dia do transbordamento
+      if (state.dailyTargets && state.dailyTargets[key] === 0) {
+        preExamDayIdx++;
+        continue;
+      }
+
+      const pDay = plan[dayInfo.month][dayInfo.day];
       let capacity = pDay.hours;
       if (capacity === 0) {
         const isWeekend = dayInfo.date.getDay() === 0 || dayInfo.date.getDay() === 6;
