@@ -242,6 +242,8 @@
     </div>
   </header>
 
+  <div id="alertBanner" style="display:none;margin-bottom:22px;padding:14px 18px;border-radius:10px;font-size:0.75rem;font-family:'Space Mono',monospace;line-height:1.5;border:1px solid var(--accent);background:rgba(240,192,64,0.05);"></div>
+
   <section class="progress-section">
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
       <div class="section-title" style="margin-bottom:0;">⬡ Progresso por Disciplina</div>
@@ -571,7 +573,11 @@ function updateDynamicPlan() {
     const pDay = plan[dayInfo.month][dayInfo.day];
     const isPreExam = dayInfo.month === 'julho' && dayInfo.day >= 25;
     if (isPreExam) {
-      preExamDays.push(dayInfo);
+      if (pDay.hours > 0) {
+        normalStudyDays.push(dayInfo);
+      } else {
+        preExamDays.push(dayInfo);
+      }
     } else if (pDay.hours > 0) {
       normalStudyDays.push(dayInfo);
     }
@@ -580,6 +586,8 @@ function updateDynamicPlan() {
   // Allocate total target hours of disciplines sequentially
   let normalDayIdx = 0;
   let preExamDayIdx = 0;
+  let totalUnallocated = 0;
+  const unallocatedByDisc = {};
 
   disciplines.forEach(disc => {
     let rem = disc.targetH;
@@ -614,6 +622,11 @@ function updateDynamicPlan() {
       rem -= capacity;
       preExamDayIdx++;
     }
+
+    if (rem > 0) {
+      totalUnallocated += rem;
+      unallocatedByDisc[disc.id] = rem;
+    }
   });
 
   // Ensure any unused pre-exam days have 0 hours and correct label
@@ -626,6 +639,8 @@ function updateDynamicPlan() {
     pDay.label = 'Semana Pré-prova';
   }
 
+  window.totalUnallocatedHours = totalUnallocated;
+  window.unallocatedByDisc = unallocatedByDisc;
   window.dynamicPlan = plan;
 }
 
@@ -723,6 +738,62 @@ function render(){
   renderCalendar('junho',window.dynamicPlan.junho,1,30,'calJunho');
   renderCalendar('julho',window.dynamicPlan.julho,3,31,'calJulho');
   renderTopics();renderLogs();
+  renderAlertBanner();
+}
+
+function renderAlertBanner() {
+  const banner = document.getElementById('alertBanner');
+  if (!banner) return;
+
+  const spilledDiscs = [];
+  for (let d = 25; d <= 31; d++) {
+    const pDay = window.dynamicPlan.julho[d];
+    if (pDay && pDay.disc && pDay.hours > 0) {
+      const discName = DISCIPLINES.find(dis => dis.id === pDay.disc)?.name || pDay.disc;
+      if (!spilledDiscs.includes(discName)) {
+        spilledDiscs.push(discName);
+      }
+    }
+  }
+
+  const totalUnallocated = window.totalUnallocatedHours || 0;
+
+  if (spilledDiscs.length > 0 || totalUnallocated > 0) {
+    let html = '';
+    
+    if (spilledDiscs.length > 0) {
+      html += `<div style="margin-bottom: ${totalUnallocated > 0 ? '8px' : '0'};">
+        <strong>⚠️ Alerta de Transbordamento:</strong> Carga horária alocada na <strong>Semana Pré-prova</strong> para: ${spilledDiscs.join(', ')}.
+      </div>`;
+    }
+    
+    if (totalUnallocated > 0) {
+      const details = Object.entries(window.unallocatedByDisc)
+        .map(([id, hours]) => {
+          const name = DISCIPLINES.find(d => d.id === id)?.name || id;
+          return `${name} (${hours.toFixed(1)}h)`;
+        })
+        .join(', ');
+      
+      html += `<div style="color: #f87171; font-weight: 700; margin-top: 6px;">
+        <strong>❌ Carga Horária Sem Alocação:</strong> Sobraram <strong>${totalUnallocated.toFixed(1)}h</strong> sem espaço no calendário, mesmo incluindo a semana pré-prova. Pendências: ${details}.
+      </div>`;
+    }
+
+    banner.innerHTML = html;
+    
+    if (totalUnallocated > 0) {
+      banner.style.borderColor = '#f87171';
+      banner.style.background = 'rgba(248, 113, 113, 0.05)';
+    } else {
+      banner.style.borderColor = 'var(--accent)';
+      banner.style.background = 'rgba(240, 192, 64, 0.05)';
+    }
+    
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
 }
 
 function renderStats(){
