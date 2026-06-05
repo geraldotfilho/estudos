@@ -178,6 +178,8 @@
   .delete-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.7rem;padding:2px 4px;border-radius:3px;transition:color .15s;}
   .delete-btn:hover{color:var(--danger);}
 
+  .cal-day.pre-prova{background:#151a14;border:1px dashed var(--accent)!important;}
+
   @media(max-width:580px){body{padding:12px 10px;}.title-block h1{font-size:1.3rem;}.cal-day{min-height:64px;}.tabs{gap:3px;}.tab-btn{padding:6px 12px;font-size:.75rem;}}
 </style>
 </head>
@@ -212,6 +214,15 @@
     <div class="modal-field"><label class="modal-label">Horas estudadas</label><input type="number" class="modal-input" id="modalHours" min="0.5" max="12" step="0.5" placeholder="ex: 2.5"></div>
     <div class="modal-field"><label class="modal-label">Observação (opcional)</label><input type="text" class="modal-input" id="modalNote" placeholder="ex: CTN arts 1-50"></div>
     <div class="modal-btns"><button class="modal-cancel" onclick="closeModal()">Cancelar</button><button class="modal-save" onclick="saveModal()">Salvar</button></div>
+    <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:10px;">
+      <div class="modal-field">
+        <label class="modal-label">Meta planejada do dia (horas)</label>
+        <div style="display:flex;gap:8px;">
+          <input type="number" class="modal-input" id="modalTargetHours" min="0" max="12" step="0.5" placeholder="ex: 5">
+          <button class="modal-save" style="flex:0 0 auto;width:auto;padding:0 12px;background:none;border:1px solid var(--accent);color:var(--accent);" onclick="saveDailyTarget()">Ajustar Meta</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -231,7 +242,24 @@
     </div>
   </header>
 
-  <section class="progress-section"><div class="section-title">⬡ Progresso por Disciplina</div><div id="disciplineBars"></div></section>
+  <section class="progress-section">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+      <div class="section-title" style="margin-bottom:0;">⬡ Progresso por Disciplina</div>
+      <button class="signout-btn" style="font-size:0.65rem;border-color:var(--accent);color:var(--accent);" onclick="toggleEditDisciplines()">Ajustar Metas</button>
+    </div>
+    
+    <!-- Painel de edição de metas de disciplinas -->
+    <div id="editDisciplinesPanel" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:0.8rem;font-weight:800;margin-bottom:12px;color:var(--accent);">Ajustar Carga Horária Programada das Disciplinas</div>
+      <div id="disciplineInputsContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="modal-save" style="padding:6px 12px;font-size:0.75rem;width:auto;" onclick="saveDisciplineTargets()">Confirmar</button>
+        <button class="modal-cancel" style="padding:6px 12px;font-size:0.75rem;" onclick="toggleEditDisciplines()">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="disciplineBars"></div>
+  </section>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('maio')">Maio</button>
@@ -420,7 +448,7 @@ const TOPICS={
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let state={logs:{},topics:{},openDiscs:{}};
+let state={logs:{},topics:{},openDiscs:{},dailyTargets:{},disciplineTargets:{}};
 let modalContext=null;
 
 const userDoc=()=>doc(db,'usuarios',currentUser.uid,'plano','2026');
@@ -441,8 +469,8 @@ async function save(patch){
 function listen(){
   if(unsubSnap)unsubSnap();
   unsubSnap=onSnapshot(userDoc(),snap=>{
-    if(snap.exists()){const d=snap.data();state.logs=d.logs||{};state.topics=d.topics||{};state.openDiscs=d.openDiscs||{};}
-    else{state={logs:{},topics:{},openDiscs:{}};}
+    if(snap.exists()){const d=snap.data();state.logs=d.logs||{};state.topics=d.topics||{};state.openDiscs=d.openDiscs||{};state.dailyTargets=d.dailyTargets||{};state.disciplineTargets=d.disciplineTargets||{};}
+    else{state={logs:{},topics:{},openDiscs:{},dailyTargets:{},disciplineTargets:{}};}
     render();setSync('saved','● sincronizado');
   },e=>{setSync('error','✕ sem conexão');console.error(e);});
 }
@@ -455,41 +483,193 @@ onAuthStateChanged(auth,user=>{
   else{currentUser=null;document.getElementById('lockScreen').style.display='flex';document.getElementById('mainApp').style.display='none';document.getElementById('googleBtn').innerHTML=GSVG+' Entrar com Google';}
 });
 
-// ── Debt computation ──────────────────────────────────────────────────────────
-// Nova lógica de cálculo de métricas para refletir a dívida global corretamente
+// ── Dynamic Plan & Debt computation ───────────────────────────────────────────
+window.dynamicPlan = null;
+
+function updateDynamicPlan() {
+  const plan = { maio: {}, junho: {}, julho: {} };
+
+  // Populate base targets and metadata for May
+  for (let d = 1; d <= 31; d++) {
+    const base = MAY_PLAN[d] || { type: 'estudo', disc: null, label: '', hours: 0 };
+    plan.maio[d] = { ...base };
+  }
+  // Populate base targets and metadata for June
+  for (let d = 1; d <= 30; d++) {
+    const base = JUN_PLAN[d] || { type: 'estudo', disc: null, label: '', hours: 0 };
+    plan.junho[d] = { ...base };
+  }
+  // Populate base targets and metadata for July (up to 31 days)
+  for (let d = 1; d <= 31; d++) {
+    let base = JUL_PLAN[d];
+    if (!base) {
+      const dayDate = new Date(2026, 6, d);
+      const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
+      base = {
+        type: d >= 25 ? 'pre-prova' : (isWeekend ? 'weekend' : 'estudo'),
+        disc: null,
+        label: d >= 25 ? 'Semana Pré-prova' : 'Dia Livre',
+        hours: 0
+      };
+    } else {
+      base = { ...base };
+    }
+    plan.julho[d] = base;
+  }
+
+  // Apply custom daily target hours overrides from state.dailyTargets
+  if (state.dailyTargets) {
+    Object.entries(state.dailyTargets).forEach(([key, val]) => {
+      const [month, dayStr] = key.split('_');
+      const day = parseInt(dayStr);
+      if (plan[month] && plan[month][day]) {
+        plan[month][day].hours = val;
+        if (val > 0 && plan[month][day].type === 'feriado') {
+          plan[month][day].type = 'estudo';
+        }
+      }
+    });
+  }
+
+  // Get current disciplines and their custom targets
+  const disciplines = DISCIPLINES.map(d => {
+    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
+    return {
+      ...d,
+      targetH: customTarget !== undefined ? customTarget : d.targetH
+    };
+  });
+
+  // Calculate actual studied hours for each discipline from all logs
+  const studiedHours = {};
+  disciplines.forEach(d => {
+    studiedHours[d.id] = Object.values(state.logs)
+      .filter(l => l.disc === d.id)
+      .reduce((sum, l) => sum + l.hours, 0);
+  });
+
+  // Remaining hours to allocate (sequential allocation from May 1st)
+  const remainingHours = {};
+  disciplines.forEach(d => {
+    remainingHours[d.id] = Math.max(0, d.targetH - studiedHours[d.id]);
+  });
+
+  // Collect all days in order
+  const allDays = [];
+  const mOffsets = { maio: 4, junho: 5, julho: 6 };
+  ['maio', 'junho', 'julho'].forEach(month => {
+    const daysInMonth = month === 'maio' ? 31 : (month === 'junho' ? 30 : 31);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mOffset = mOffsets[month];
+      const dayDate = new Date(2026, mOffset, d);
+      allDays.push({ month, day: d, date: dayDate });
+    }
+  });
+
+  // Reset assignment of all days first
+  allDays.forEach(dayInfo => {
+    const pDay = plan[dayInfo.month][dayInfo.day];
+    pDay.disc = null;
+    pDay.label = (dayInfo.month === 'julho' && dayInfo.day >= 25) ? 'Semana Pré-prova' : 'Dia Livre';
+  });
+
+  // Split into normal study days and pre-exam days
+  const normalStudyDays = [];
+  const preExamDays = [];
+
+  allDays.forEach(dayInfo => {
+    const pDay = plan[dayInfo.month][dayInfo.day];
+    const isPreExam = dayInfo.month === 'julho' && dayInfo.day >= 25;
+    if (isPreExam) {
+      preExamDays.push(dayInfo);
+    } else if (pDay.hours > 0) {
+      normalStudyDays.push(dayInfo);
+    }
+  });
+
+  // Allocate remaining hours of disciplines sequentially
+  let normalDayIdx = 0;
+  let preExamDayIdx = 0;
+
+  disciplines.forEach(disc => {
+    let rem = remainingHours[disc.id];
+
+    // 1. Allocate to normal study days
+    while (rem > 0 && normalDayIdx < normalStudyDays.length) {
+      const dayInfo = normalStudyDays[normalDayIdx];
+      const pDay = plan[dayInfo.month][dayInfo.day];
+      
+      pDay.disc = disc.id;
+      pDay.label = disc.name;
+      
+      rem -= pDay.hours;
+      normalDayIdx++;
+    }
+
+    // 2. Spill over to pre-exam week days if still remaining
+    while (rem > 0 && preExamDayIdx < preExamDays.length) {
+      const dayInfo = preExamDays[preExamDayIdx];
+      const pDay = plan[dayInfo.month][dayInfo.day];
+      
+      let capacity = pDay.hours;
+      if (capacity === 0) {
+        const isWeekend = dayInfo.date.getDay() === 0 || dayInfo.date.getDay() === 6;
+        capacity = isWeekend ? 3 : 5;
+      }
+      pDay.hours = capacity;
+      pDay.type = 'pre-prova';
+      pDay.disc = disc.id;
+      pDay.label = disc.name;
+      
+      rem -= capacity;
+      preExamDayIdx++;
+    }
+  });
+
+  // Ensure any unused pre-exam days have 0 hours and correct label
+  for (let idx = preExamDayIdx; idx < preExamDays.length; idx++) {
+    const dayInfo = preExamDays[idx];
+    const pDay = plan[dayInfo.month][dayInfo.day];
+    pDay.hours = 0;
+    pDay.disc = null;
+    pDay.type = 'pre-prova';
+    pDay.label = 'Semana Pré-prova';
+  }
+
+  window.dynamicPlan = plan;
+}
+
 function computeMetrics(){
   const now=new Date();now.setHours(0,0,0,0);
-
-  // Usa a função getHoursByDisc() já existente para saber o total geral estudado por matéria
   const totalStudied = getHoursByDisc();
-
   const allDays=[];
-  for(let d=1;d<=31;d++) allDays.push({month:'maio',day:d,plan:MAY_PLAN[d]||null});
-  for(let d=1;d<=30;d++) allDays.push({month:'junho',day:d,plan:JUN_PLAN[d]||null});
-  for(let d=1;d<=16;d++) allDays.push({month:'julho',day:d,plan:JUL_PLAN[d]||null});
+  for(let d=1;d<=31;d++) allDays.push({month:'maio',day:d,plan:window.dynamicPlan.maio[d]||null});
+  for(let d=1;d<=30;d++) allDays.push({month:'junho',day:d,plan:window.dynamicPlan.junho[d]||null});
+  for(let d=1;d<=31;d++) allDays.push({month:'julho',day:d,plan:window.dynamicPlan.julho[d]||null});
 
-  // Acumula total esperado por disciplina até a data de hoje (inclusa)
   const expectedByDisc={};
-  DISCIPLINES.forEach(d=>expectedByDisc[d.id]=0);
+  const disciplines = DISCIPLINES.map(d => {
+    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
+    return {
+      ...d,
+      targetH: customTarget !== undefined ? customTarget : d.targetH
+    };
+  });
+  disciplines.forEach(d=>expectedByDisc[d.id]=0);
 
   allDays.forEach(({month,day,plan})=>{
     if(!plan||!plan.hours||!plan.disc) return;
     const mOffset = month==='maio'?4:(month==='junho'?5:6);
     const dayDate=new Date(2026,mOffset,day);
-    
-    // CORREÇÃO 1: Antes era >= (descartava o dia de hoje). Agora é > para incluir a meta de hoje!
     if(dayDate>now) return; 
 
     expectedByDisc[plan.disc] += plan.hours;
   });
 
-  // CORREÇÃO 2: A dívida agora é baseada no saldo global (Total Esperado até Hoje - Total Estudado)
   const debtByDisc={};
-  DISCIPLINES.forEach(d=>{
+  disciplines.forEach(d=>{
     const expected = expectedByDisc[d.id] || 0;
     const studied = totalStudied[d.id] || 0;
-    
-    // Se o esperado for maior que o estudado, esse é o saldo negativo global
     debtByDisc[d.id] = Math.max(0, expected - studied);
   });
 
@@ -509,7 +689,7 @@ function openModal(month,day,discId){
   const monthNames = {maio: 'Maio', junho: 'Junho', julho: 'Julho'};
   document.getElementById('modalTitle').textContent=`${monthNames[month]} ${day}`;
   const disc=DISCIPLINES.find(d=>d.id===discId);
-  const plan=month==='maio'?MAY_PLAN[day]:(month==='junho'?JUN_PLAN[day]:JUL_PLAN[day]);
+  const plan=window.dynamicPlan[month][day];
   let sub=disc?`Planejado: ${disc.name}`:'Dia livre';
   if(plan&&(plan.type==='plantao'||plan.type==='feriado')) sub='Plantão / dia extra';
   document.getElementById('modalSub').textContent=sub;
@@ -517,6 +697,8 @@ function openModal(month,day,discId){
   if(discId) document.getElementById('modalDisc').value=discId;
   document.getElementById('modalHours').value='';
   document.getElementById('modalNote').value='';
+  // Load current target hours for that day
+  document.getElementById('modalTargetHours').value=plan?plan.hours:0;
   document.getElementById('quickModal').classList.add('open');
   setTimeout(()=>document.getElementById('modalHours').focus(),100);
 }
@@ -545,10 +727,11 @@ function getDaysLeft(){const exam=new Date('2026-08-01');const now=new Date();no
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render(){
+  updateDynamicPlan();
   renderStats();renderBars();
-  renderCalendar('maio',MAY_PLAN,5,31,'calMaio');
-  renderCalendar('junho',JUN_PLAN,1,30,'calJunho');
-  renderCalendar('julho',JUL_PLAN,3,16,'calJulho');
+  renderCalendar('maio',window.dynamicPlan.maio,5,31,'calMaio');
+  renderCalendar('junho',window.dynamicPlan.junho,1,30,'calJunho');
+  renderCalendar('julho',window.dynamicPlan.julho,3,31,'calJulho');
   renderTopics();renderLogs();
 }
 
@@ -566,7 +749,15 @@ function renderBars(){
   const topics=getTopicsByDisc();
   const {debtByDisc,expectedByDisc}=computeMetrics();
 
-  document.getElementById('disciplineBars').innerHTML=DISCIPLINES.map(d=>{
+  const disciplines = DISCIPLINES.map(d => {
+    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
+    return {
+      ...d,
+      targetH: customTarget !== undefined ? customTarget : d.targetH
+    };
+  });
+
+  document.getElementById('disciplineBars').innerHTML=disciplines.map(d=>{
     const studied=hoursStudied[d.id]||0;
     const expected=expectedByDisc[d.id]||0; // where you should be by now
     const debt=debtByDisc[d.id]||0;         // total hours behind
@@ -648,6 +839,7 @@ function renderCalendar(month,plan,offset,days,containerId){
     if(isPlantaoType) cls+=' plantao';
     else if(p.type==='pos-plantao') cls+=' pos-plantao';
     else if(p.type==='weekend') cls+=' weekend';
+    else if(p.type==='pre-prova') cls+=' pre-prova';
 
     if(isToday) cls+=' today';
     else if(isPast&&meta>0){
@@ -662,6 +854,7 @@ function renderCalendar(month,plan,offset,days,containerId){
     let typeLabel = '';
     if (p.type === 'plantao') typeLabel = '<div style="font-size:0.45rem; color:var(--text-dim); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Plantão</div>';
     else if (p.type === 'pos-plantao') typeLabel = '<div style="font-size:0.45rem; color:var(--text-dim); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Pós-plantão</div>';
+    else if (p.type === 'pre-prova') typeLabel = '<div style="font-size:0.45rem; color:var(--accent); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Pré-prova</div>';
 
     // Disc label (modificado para incluir a variável typeLabel)
     const discHtml=disc
@@ -707,7 +900,15 @@ function renderCalendar(month,plan,offset,days,containerId){
 }
 
 function renderTopics(){
-  document.getElementById('topicsContainer').innerHTML=DISCIPLINES.map(d=>{
+  const disciplines = DISCIPLINES.map(d => {
+    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
+    return {
+      ...d,
+      targetH: customTarget !== undefined ? customTarget : d.targetH
+    };
+  });
+
+  document.getElementById('topicsContainer').innerHTML=disciplines.map(d=>{
     const topics=TOPICS[d.id]||[];
     const doneCount=topics.filter((_,i)=>state.topics[`${d.id}_${i}`]).length;
     const isOpen=state.openDiscs[d.id];
@@ -754,6 +955,56 @@ window.addLog=async()=>{
 window.deleteLog=async id=>{
   delete state.logs[id];render();
   try{await updateDoc(userDoc(),{[`logs.${id}`]:deleteField()});}catch(e){console.error(e);}
+};
+
+window.saveDailyTarget = async () => {
+  if (!modalContext) return;
+  const targetVal = parseFloat(document.getElementById('modalTargetHours').value);
+  if (isNaN(targetVal) || targetVal < 0) {
+    alert('Por favor, informe um valor de meta válido (maior ou igual a 0).');
+    return;
+  }
+  const key = `${modalContext.month}_${modalContext.day}`;
+  if (!state.dailyTargets) state.dailyTargets = {};
+  state.dailyTargets[key] = targetVal;
+  render();
+  closeModal();
+  await save({ dailyTargets: state.dailyTargets });
+};
+
+window.toggleEditDisciplines = () => {
+  const panel = document.getElementById('editDisciplinesPanel');
+  if (panel.style.display === 'none') {
+    const disciplines = DISCIPLINES.map(d => {
+      const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
+      return {
+        ...d,
+        targetH: customTarget !== undefined ? customTarget : d.targetH
+      };
+    });
+    document.getElementById('disciplineInputsContainer').innerHTML = disciplines.map(d => `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <span style="font-size:0.75rem;color:${d.color};font-weight:700;">${d.name}</span>
+        <input type="number" class="modal-input" style="width:80px;text-align:right;" id="edit_target_${d.id}" min="0" max="200" step="1" value="${d.targetH}">
+      </div>
+    `).join('');
+    panel.style.display = 'block';
+  } else {
+    panel.style.display = 'none';
+  }
+};
+
+window.saveDisciplineTargets = async () => {
+  if (!state.disciplineTargets) state.disciplineTargets = {};
+  DISCIPLINES.forEach(d => {
+    const val = parseFloat(document.getElementById(`edit_target_${d.id}`).value);
+    if (!isNaN(val) && val >= 0) {
+      state.disciplineTargets[d.id] = val;
+    }
+  });
+  render();
+  document.getElementById('editDisciplinesPanel').style.display = 'none';
+  await save({ disciplineTargets: state.disciplineTargets });
 };
 
 window.openModal=openModal;
