@@ -245,7 +245,10 @@
   <section class="progress-section">
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
       <div class="section-title" style="margin-bottom:0;">⬡ Progresso por Disciplina</div>
-      <button class="signout-btn" style="font-size:0.65rem;border-color:var(--accent);color:var(--accent);" onclick="toggleEditDisciplines()">Ajustar Metas</button>
+      <div>
+        <button class="signout-btn" style="font-size:0.65rem;border-color:var(--accent);color:var(--accent);" onclick="toggleEditDisciplines()">Ajustar Metas</button>
+        <button class="signout-btn" style="font-size:0.65rem;border-color:var(--danger);color:var(--danger);margin-left:8px;" onclick="resetToDefaultTargets()">Resetar Metas</button>
+      </div>
     </div>
     
     <!-- Painel de edição de metas de disciplinas -->
@@ -536,9 +539,10 @@ function updateDynamicPlan() {
     const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
     return {
       ...d,
-      targetH: customTarget !== undefined ? customTarget : d.targetH
+      targetH: (customTarget !== undefined && customTarget !== null && !isNaN(customTarget)) ? customTarget : d.targetH
     };
   });
+  console.log('updateDynamicPlan: discipline targets:', disciplines.map(d => `${d.id}: ${d.targetH}h`));
 
   // Collect all days in order
   const allDays = [];
@@ -991,6 +995,14 @@ window.saveDisciplineTargets = async () => {
   render();
   document.getElementById('editDisciplinesPanel').style.display = 'none';
   await save({ disciplineTargets: state.disciplineTargets });
+};
+
+window.resetToDefaultTargets = async () => {
+  if (!confirm('Deseja realmente resetar todas as metas diárias e de disciplinas para os valores padrão?')) return;
+  state.dailyTargets = {};
+  state.disciplineTargets = {};
+  render();
+  await save({ dailyTargets: deleteField(), disciplineTargets: deleteField() });
 };
 
 window.openModal=openModal;
