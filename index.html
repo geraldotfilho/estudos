@@ -113,7 +113,10 @@
   .cal-day.past-ok{border-color:#34d399!important;background:rgba(52,211,153,0.03);}
   .day-num{font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);}
   .cal-day.today .day-num{color:var(--accent);}
-  .day-disc{margin-top:4px;font-size:.85rem;font-weight:800;line-height:1.3;}
+  .day-head{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
+  .day-weekday{display:none;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
+  .day-type{font-family:'Inter',sans-serif;font-size:.6rem;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+  .day-disc{margin-top:4px;font-size:.85rem;font-weight:800;line-height:1.3;word-break:break-word;}
   .day-meta{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text-dim);font-weight:700;margin-top:3px;}
   .day-logged{font-family:'Inter',sans-serif;font-size:.78rem;font-weight:800;margin-top:3px;}
   .day-trophy{font-size:.85rem;margin-top:4px;text-align:right;}
@@ -181,7 +184,36 @@
 
   .cal-day.pre-prova{background:#151a14;border:1px dashed var(--accent)!important;}
 
-  @media(max-width:580px){body{padding:12px 10px;}.title-block h1{font-size:1.3rem;}.cal-day{min-height:105px;padding:8px 4px;}.calendar-grid{grid-auto-rows:minmax(105px, max-content);}.tabs{gap:3px;}.tab-btn{padding:6px 12px;font-size:.75rem;}}
+  /* ── Responsividade ──
+     Em telas estreitas a grade fixa de 7 colunas fica ilegível (células com ~45px).
+     Abaixo de 760px trocamos para uma grade fluida (auto-fill) que mostra
+     quantas colunas couberem, escondemos os rótulos de semana fixos e passamos
+     a exibir o dia da semana dentro de cada card. As cores das fontes continuam
+     claras sobre o fundo escuro, preservando o contraste em qualquer tamanho. */
+  @media(max-width:760px){
+    .calendar-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));grid-auto-rows:auto;}
+    .week-labels{display:none;}
+    .cal-empty{display:none;}
+    .cal-day{min-height:auto;}
+    .day-weekday{display:inline;}
+    .day-disc{font-size:.92rem;}
+    .day-meta,.day-logged,.day-extra,.day-short{font-size:.84rem;}
+    .day-type{font-size:.64rem;}
+  }
+  @media(max-width:580px){
+    body{padding:14px 10px;}
+    .title-block h1{font-size:1.5rem;}
+    .title-meta{font-size:.85rem;}
+    .stats-bar{gap:8px;}
+    .stat{min-width:0;flex:1 1 calc(50% - 4px);padding:10px 12px;}
+    .tabs{gap:4px;}
+    .tab-btn{padding:7px 14px;font-size:.85rem;flex:1 1 auto;}
+    .modal-box{width:calc(100vw - 28px);max-width:360px;}
+    .log-form{flex-direction:column;align-items:stretch;}
+    .log-form .form-field{width:100%;}
+    .log-form .form-input,.log-form .form-select{width:100%!important;}
+    .log-btn{width:100%;align-self:stretch;}
+  }
 </style>
 </head>
 <body>
@@ -559,10 +591,15 @@ function updateDynamicPlan() {
     }
   });
 
-  // Reset assignment of all days first
+  // Reset assignment of all days first.
+  // Cada dia passa a ter uma lista de "segmentos" {disc, hours}, permitindo que
+  // um mesmo dia seja dividido entre duas disciplinas quando a meta de uma
+  // termina no meio do dia. Isso garante que a soma das metas exibidas no
+  // calendário por disciplina seja exatamente igual à carga horária planejada.
   allDays.forEach(dayInfo => {
     const pDay = plan[dayInfo.month][dayInfo.day];
     pDay.disc = null;
+    pDay.segments = [];
     pDay.label = (dayInfo.month === 'julho' && dayInfo.day >= 25) ? 'Semana Pré-prova' : 'Dia Livre';
   });
 
@@ -590,26 +627,38 @@ function updateDynamicPlan() {
   let totalUnallocated = 0;
   const unallocatedByDisc = {};
 
+  const EPS = 1e-6;
+  const usedHours = pDay => pDay.segments.reduce((s, x) => s + x.hours, 0);
+
   disciplines.forEach(disc => {
     let rem = disc.targetH;
 
-    // 1. Allocate to normal study days
-    while (rem > 0 && normalDayIdx < normalStudyDays.length) {
+    // 1. Allocate to normal study days.
+    //    Em vez de consumir o dia inteiro (que fazia a disciplina ultrapassar a
+    //    meta e a seguinte perder a capacidade restante do dia), tomamos apenas
+    //    as horas necessárias. Se a meta termina no meio do dia, o dia NÃO é
+    //    avançado, e a próxima disciplina continua a partir da capacidade que
+    //    sobrou — gerando um dia compartilhado por duas disciplinas.
+    while (rem > EPS && normalDayIdx < normalStudyDays.length) {
       const dayInfo = normalStudyDays[normalDayIdx];
       const pDay = plan[dayInfo.month][dayInfo.day];
-      
-      pDay.disc = disc.id;
+      const remCap = pDay.hours - usedHours(pDay);
+      if (remCap <= EPS) { normalDayIdx++; continue; }
+
+      const take = Math.min(rem, remCap);
+      pDay.segments.push({ disc: disc.id, hours: take });
+      if (!pDay.disc) pDay.disc = disc.id;
       pDay.label = disc.name;
-      
-      rem -= pDay.hours;
-      normalDayIdx++;
+
+      rem -= take;
+      if (usedHours(pDay) >= pDay.hours - EPS) normalDayIdx++; // dia cheio: avança
     }
 
     // 2. Spill over to pre-exam week days if still remaining
-    while (rem > 0 && preExamDayIdx < preExamDays.length) {
+    while (rem > EPS && preExamDayIdx < preExamDays.length) {
       const dayInfo = preExamDays[preExamDayIdx];
       const key = `${dayInfo.month}_${dayInfo.day}`;
-      
+
       // Se o usuário travou a meta deste dia em 0, pula este dia do transbordamento
       if (state.dailyTargets && state.dailyTargets[key] === 0) {
         preExamDayIdx++;
@@ -624,28 +673,39 @@ function updateDynamicPlan() {
       }
       pDay.hours = capacity;
       pDay.type = 'pre-prova';
-      pDay.disc = disc.id;
+
+      const remCap = capacity - usedHours(pDay);
+      if (remCap <= EPS) { preExamDayIdx++; continue; }
+
+      const take = Math.min(rem, remCap);
+      pDay.segments.push({ disc: disc.id, hours: take });
+      if (!pDay.disc) pDay.disc = disc.id;
       pDay.label = disc.name;
-      
-      rem -= capacity;
-      preExamDayIdx++;
+
+      rem -= take;
+      if (usedHours(pDay) >= capacity - EPS) preExamDayIdx++;
     }
 
-    if (rem > 0) {
+    if (rem > EPS) {
       totalUnallocated += rem;
       unallocatedByDisc[disc.id] = rem;
     }
   });
 
-  // Ensure any unused pre-exam days have 0 hours and correct label
-  for (let idx = preExamDayIdx; idx < preExamDays.length; idx++) {
-    const dayInfo = preExamDays[idx];
+  // Ensure any unused pre-exam days have 0 hours and correct label.
+  // Importante: limpamos apenas os dias SEM segmentos. Um dia pré-prova
+  // parcialmente preenchido (a última disciplina pode usar só parte da sua
+  // capacidade) não é avançado pelo índice e seria apagado por engano se
+  // limpássemos por índice — por isso o critério é "não ter segmentos".
+  preExamDays.forEach(dayInfo => {
     const pDay = plan[dayInfo.month][dayInfo.day];
-    pDay.hours = 0;
-    pDay.disc = null;
-    pDay.type = 'pre-prova';
-    pDay.label = 'Semana Pré-prova';
-  }
+    if (pDay.segments.length === 0) {
+      pDay.hours = 0;
+      pDay.disc = null;
+      pDay.type = 'pre-prova';
+      pDay.label = 'Semana Pré-prova';
+    }
+  });
 
   window.totalUnallocatedHours = totalUnallocated;
   window.unallocatedByDisc = unallocatedByDisc;
@@ -671,12 +731,15 @@ function computeMetrics(){
   disciplines.forEach(d=>expectedByDisc[d.id]=0);
 
   allDays.forEach(({month,day,plan})=>{
-    if(!plan||!plan.hours||!plan.disc) return;
+    if(!plan||!plan.segments||!plan.segments.length) return;
     const mOffset = month==='maio'?4:(month==='junho'?5:6);
     const dayDate=new Date(2026,mOffset,day);
-    if(dayDate>now) return; 
+    if(dayDate>now) return;
 
-    expectedByDisc[plan.disc] += plan.hours;
+    // Soma as horas de cada segmento ao "esperado" da disciplina correspondente.
+    plan.segments.forEach(seg=>{
+      if(expectedByDisc[seg.disc]!==undefined) expectedByDisc[seg.disc]+=seg.hours;
+    });
   });
 
   const debtByDisc={};
@@ -737,6 +800,8 @@ function getTotalHours(){return Object.values(state.logs).reduce((s,l)=>s+l.hour
 function getDaysStudied(){return new Set(Object.values(state.logs).map(l=>l.month+'_'+l.day)).size;}
 function getTopicStats(){let total=0,done=0;Object.keys(TOPICS).forEach(disc=>{TOPICS[disc].forEach((_,i)=>{total++;if(state.topics[`${disc}_${i}`])done++;});});return{total,done};}
 function getDaysLeft(){const exam=new Date('2026-08-01');const now=new Date();now.setHours(0,0,0,0);return Math.max(0,Math.round((exam-now)/86400000));}
+// Formata horas sem casas decimais desnecessárias (5 -> "5", 4.5 -> "4.5").
+function fmtH(h){h=Math.round(h*100)/100;return h%1===0?String(h):h.toFixed(1);}
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render(){
@@ -756,11 +821,13 @@ function renderAlertBanner() {
   const spilledDiscs = [];
   for (let d = 25; d <= 31; d++) {
     const pDay = window.dynamicPlan.julho[d];
-    if (pDay && pDay.disc && pDay.hours > 0) {
-      const discName = DISCIPLINES.find(dis => dis.id === pDay.disc)?.name || pDay.disc;
-      if (!spilledDiscs.includes(discName)) {
-        spilledDiscs.push(discName);
-      }
+    if (pDay && pDay.segments && pDay.segments.length && pDay.hours > 0) {
+      pDay.segments.forEach(seg => {
+        const discName = DISCIPLINES.find(dis => dis.id === seg.disc)?.name || seg.disc;
+        if (!spilledDiscs.includes(discName)) {
+          spilledDiscs.push(discName);
+        }
+      });
     }
   }
 
@@ -893,15 +960,18 @@ function renderCalendar(month,plan,offset,days,containerId){
 
   let html='<div class="cal-empty"></div>'.repeat(offset);
 
+  const WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
   for(let day=1;day<=days;day++){
-    const p=plan[day]||{type:'estudo',disc:null,label:'',hours:0};
+    const p=plan[day]||{type:'estudo',disc:null,label:'',hours:0,segments:[]};
     const logged=byDay[day]||0;
-    const disc=p.disc?DISCIPLINES.find(d=>d.id===p.disc):null;
+    const segs=p.segments||[];
     const dayDate=new Date(2026,mIdx,day);
     const isPast=dayDate<now;
     const isToday=isCurrentMonth&&isThisYear&&day===todayDate;
     const isPlantaoType=p.type==='plantao'||p.type==='feriado';
-    const meta=p.hours||0;
+    // A meta do dia é a soma das horas dos segmentos alocados (1 ou mais disciplinas).
+    const meta=segs.reduce((s,x)=>s+x.hours,0);
 
     // Border state for past study days
     let cls='cal-day';
@@ -913,50 +983,59 @@ function renderCalendar(month,plan,offset,days,containerId){
     if(isToday) cls+=' today';
     else if(isPast&&meta>0){
       if(logged>=meta) cls+=' past-ok';
-      else if(logged>0||logged===0) cls+=' past-missed';
+      else cls+=' past-missed';
     }
 
     // All days are clickable now
     const clickAttr=`onclick="openModal('${month}',${day},'${p.disc||''}')"`;
 
-    // --- TRECHO ADICIONADO PARA RÓTULOS DE PLANTÃO ---
+    // Rótulo do tipo de dia (plantão / pós-plantão / pré-prova)
     let typeLabel = '';
-    if (p.type === 'plantao') typeLabel = '<div style="font-size:0.45rem; color:var(--text-dim); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Plantão</div>';
-    else if (p.type === 'pos-plantao') typeLabel = '<div style="font-size:0.45rem; color:var(--text-dim); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Pós-plantão</div>';
-    else if (p.type === 'pre-prova') typeLabel = '<div style="font-size:0.45rem; color:var(--accent); margin-top:2px; text-transform:uppercase; letter-spacing:1px;">Pré-prova</div>';
+    if (p.type === 'plantao') typeLabel = '<div class="day-type">Plantão</div>';
+    else if (p.type === 'pos-plantao') typeLabel = '<div class="day-type">Pós-plantão</div>';
+    else if (p.type === 'pre-prova') typeLabel = '<div class="day-type" style="color:var(--accent)">Pré-prova</div>';
 
-    // Disc label (modificado para incluir a variável typeLabel)
-    const discHtml=disc
-      ?`${typeLabel}<div class="day-disc" style="color:${disc.color}">${p.label}</div>`
-      :(p.label?`${typeLabel}<div class="day-disc" style="color:var(--muted)">${p.label}</div>`:'');
-    // -------------------------------------------------
+    // Disciplinas do dia. Com mais de um segmento, mostramos cada disciplina e
+    // suas horas (dia compartilhado entre disciplinas); com apenas um, só o nome.
+    let discHtml = typeLabel;
+    if (segs.length > 1) {
+      discHtml += segs.map(seg=>{
+        const sd=DISCIPLINES.find(d=>d.id===seg.disc);
+        return `<div class="day-disc" style="color:${sd?sd.color:'var(--muted)'}">${sd?sd.name:seg.disc} · ${fmtH(seg.hours)}h</div>`;
+      }).join('');
+    } else if (segs.length === 1) {
+      const sd=DISCIPLINES.find(d=>d.id===segs[0].disc);
+      discHtml += `<div class="day-disc" style="color:${sd?sd.color:'var(--muted)'}">${sd?sd.name:segs[0].disc}</div>`;
+    } else if (p.label) {
+      discHtml += `<div class="day-disc" style="color:var(--muted)">${p.label}</div>`;
+    }
 
-    // Meta line
-    const metaHtml=meta>0?`<div class="day-meta">meta: ${meta}h</div>`:'';
+    // Meta line (total planejado do dia)
+    const metaHtml=meta>0?`<div class="day-meta">meta: ${fmtH(meta)}h</div>`:'';
 
     // Logged + trophy logic
     let loggedHtml='', trophyHtml='', extraHtml='', shortHtml='';
     if(logged>0){
       const color=logged>=meta?'#34d399':'#f87171';
-      loggedHtml=`<div class="day-logged" style="color:${color}">${logged.toFixed(1)}h estudadas</div>`;
+      loggedHtml=`<div class="day-logged" style="color:${color}">${fmtH(logged)}h estudadas</div>`;
       if(meta>0){
         if(logged>meta){
           const extra=logged-meta;
           trophyHtml=`<div class="day-trophy">🏆🏆</div>`;
-          extraHtml=`<div class="day-extra">+${extra.toFixed(1)}h extra!</div>`;
+          extraHtml=`<div class="day-extra">+${fmtH(extra)}h extra!</div>`;
         } else if(logged===meta){
           trophyHtml=`<div class="day-trophy">🏆</div>`;
         } else if(isPast){
           const short=meta-logged;
-          shortHtml=`<div class="day-short">−${short.toFixed(1)}h da meta</div>`;
+          shortHtml=`<div class="day-short">−${fmtH(short)}h da meta</div>`;
         }
       }
     } else if(isPast&&meta>0){
-      shortHtml=`<div class="day-short">−${meta.toFixed(1)}h da meta</div>`;
+      shortHtml=`<div class="day-short">−${fmtH(meta)}h da meta</div>`;
     }
 
     html+=`<div class="${cls}" ${clickAttr}>
-      <div class="day-num">${day}</div>
+      <div class="day-head"><span class="day-num">${day}</span><span class="day-weekday">${WD[dayDate.getDay()]}</span></div>
       ${discHtml}
       ${metaHtml}
       ${loggedHtml}
