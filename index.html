@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d12">
 <title>Plano de Estudos — Sefaz CE 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap');
@@ -114,7 +115,6 @@
   .day-num{font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);}
   .cal-day.today .day-num{color:var(--accent);}
   .day-head{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
-  .day-weekday{display:none;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
   .day-type{font-family:'Inter',sans-serif;font-size:.6rem;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
   .day-disc{margin-top:4px;font-size:.85rem;font-weight:800;line-height:1.3;word-break:break-word;}
   .day-meta{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text-dim);font-weight:700;margin-top:3px;}
@@ -184,35 +184,103 @@
 
   .cal-day.pre-prova{background:#151a14;border:1px dashed var(--accent)!important;}
 
+  /* ── Gerenciador de disciplinas ── */
+  .manager-toggle{background:none;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:6px 12px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+  .manager-toggle:hover{background:rgba(251,191,36,.1);}
+  .manager-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;}
+  .manager-title{font-size:.95rem;font-weight:800;color:var(--accent);margin-bottom:4px;}
+  .manager-hint{font-size:.82rem;color:var(--text-dim);font-weight:500;margin-bottom:14px;line-height:1.55;}
+  .manager-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:8px;}
+  .manager-color{width:36px;height:36px;border:1px solid var(--border);background:none;padding:2px;cursor:pointer;border-radius:8px;flex-shrink:0;}
+  .manager-name{flex:1 1 150px;min-width:130px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:.92rem;font-weight:600;outline:none;transition:border-color .15s;}
+  .manager-name:focus{border-color:var(--accent);}
+  .manager-num-label{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--text-dim);font-weight:700;text-transform:uppercase;}
+  .manager-num{width:62px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 6px;font-family:'Inter',sans-serif;font-size:.92rem;font-weight:600;text-align:right;outline:none;transition:border-color .15s;}
+  .manager-num:focus{border-color:var(--accent);}
+  .manager-row-btns{display:flex;gap:4px;margin-left:auto;}
+  .icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);border-radius:6px;min-width:34px;height:34px;cursor:pointer;font-size:.9rem;font-family:'Inter',sans-serif;transition:all .15s;}
+  .icon-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+  .icon-btn:disabled{opacity:.3;cursor:default;}
+  .icon-btn.danger:hover:not(:disabled){border-color:var(--danger);color:var(--danger);}
+  .manager-add{width:100%;background:none;border:1px dashed var(--muted);color:var(--text-dim);border-radius:8px;padding:10px;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .15s;margin-top:2px;}
+  .manager-add:hover{border-color:var(--accent);color:var(--accent);}
+  .manager-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center;}
+  .manager-reset{margin-left:auto;background:none;border:1px solid var(--danger);color:var(--danger);border-radius:6px;padding:9px 14px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;}
+  .manager-reset:hover{background:rgba(248,113,113,.1);}
+
+  /* ── Tópicos personalizados ── */
+  .topic-del{margin-left:auto;flex-shrink:0;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 6px;border-radius:3px;transition:color .15s;}
+  .topic-del:hover{color:var(--danger);}
+  .topic-add-row{display:flex;gap:8px;padding-top:12px;}
+  .topic-add-input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 12px;font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:border-color .15s;}
+  .topic-add-input:focus{border-color:var(--accent);}
+  .topic-add-btn{background:var(--surface2);border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:9px 14px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;}
+  .topic-add-btn:hover{background:rgba(251,191,36,.12);}
+  .topics-empty{font-size:.85rem;color:var(--muted);font-weight:600;padding:12px 0 2px;}
+
+  /* ── Modo compacto do calendário (telas pequenas) ── */
+  .day-compact{display:none;flex-direction:column;gap:2px;margin-top:3px;min-width:0;}
+  .day-dots{display:flex;flex-wrap:wrap;gap:2px;align-items:center;}
+  .day-dots .dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+  .mini-trophy{font-size:.62rem;line-height:1;}
+  .day-mini{font-family:'Inter',sans-serif;font-size:.68rem;font-weight:800;line-height:1.15;white-space:nowrap;}
+
   /* ── Responsividade ──
-     Em telas estreitas a grade fixa de 7 colunas fica ilegível (células com ~45px).
-     Abaixo de 760px trocamos para uma grade fluida (auto-fill) que mostra
-     quantas colunas couberem, escondemos os rótulos de semana fixos e passamos
-     a exibir o dia da semana dentro de cada card. As cores das fontes continuam
-     claras sobre o fundo escuro, preservando o contraste em qualquer tamanho. */
+     O calendário mantém a grade real de 7 colunas (semana) em QUALQUER largura
+     de tela — nada de quebrar em lista. Em telas pequenas cada cartão troca o
+     texto completo por um modo compacto: número do dia, pontos coloridos das
+     disciplinas alocadas e as horas em fonte legível. O detalhe completo do dia
+     (disciplinas, meta, registro) fica a um toque, no modal. */
   @media(max-width:760px){
-    .calendar-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));grid-auto-rows:auto;}
-    .week-labels{display:none;}
-    .cal-empty{display:none;}
-    .cal-day{min-height:auto;}
-    .day-weekday{display:inline;}
-    .day-disc{font-size:.92rem;}
-    .day-meta,.day-logged,.day-extra,.day-short{font-size:.84rem;}
-    .day-type{font-size:.64rem;}
+    .calendar-grid{grid-auto-rows:minmax(58px,max-content);gap:2px;}
+    .cal-day{min-height:58px;padding:5px 4px;border-radius:4px;}
+    .cal-day.today{border-width:2px;}
+    .week-label{font-size:.7rem;padding:4px 0;letter-spacing:0;}
+    .day-num{font-size:.9rem;}
+    .day-type,.day-disc,.day-meta,.day-logged,.day-extra,.day-short,.day-trophy{display:none;}
+    .day-compact{display:flex;}
+    .legend{gap:8px;row-gap:5px;}
+    .legend-item{font-size:.78rem;}
   }
   @media(max-width:580px){
-    body{padding:14px 10px;}
-    .title-block h1{font-size:1.5rem;}
+    body{padding:14px 8px;}
+    #syncStatus{top:8px;right:8px;font-size:.7rem;padding:4px 9px;}
+    .title-block h1{font-size:1.45rem;}
     .title-meta{font-size:.85rem;}
     .stats-bar{gap:8px;}
     .stat{min-width:0;flex:1 1 calc(50% - 4px);padding:10px 12px;}
+    .stat-value{font-size:1.35rem;}
     .tabs{gap:4px;}
-    .tab-btn{padding:7px 14px;font-size:.85rem;flex:1 1 auto;}
-    .modal-box{width:calc(100vw - 28px);max-width:360px;}
+    .tab-btn{padding:8px 10px;font-size:.85rem;flex:1 1 auto;}
+    .modal-box{width:calc(100vw - 28px);max-width:360px;max-height:88vh;overflow-y:auto;}
+    /* 16px nos campos evita o zoom automático do iOS ao focar */
+    .modal-input,.modal-select,.form-input,.form-select,.topic-add-input,.manager-name,.manager-num{font-size:16px;}
     .log-form{flex-direction:column;align-items:stretch;}
     .log-form .form-field{width:100%;}
     .log-form .form-input,.log-form .form-select{width:100%!important;}
     .log-btn{width:100%;align-self:stretch;}
+    .log-entry{flex-wrap:wrap;row-gap:3px;}
+    .log-entry-note{flex:1 1 100%;white-space:normal;}
+    .bar-label{width:46px;font-size:.72rem;}
+    .bar-pct{width:74px;font-size:.8rem;}
+    .bar-pct-sub{font-size:.68rem;}
+    .disc-progress-name{font-size:.95rem;}
+    .week-label{font-size:.62rem;}
+    .calendar-grid{grid-auto-rows:minmax(54px,max-content);}
+    .cal-day{min-height:54px;padding:4px 3px;}
+    .day-num{font-size:.85rem;}
+    .day-mini{font-size:.64rem;}
+    .day-dots .dot{width:6px;height:6px;}
+    .manager-name{flex:1 1 100%;order:1;}
+    .manager-color{order:2;width:34px;height:34px;}
+    .manager-num-label{order:3;}
+    .manager-row-btns{order:4;}
+  }
+  @media(max-width:400px){
+    .day-num{font-size:.8rem;}
+    .day-mini{font-size:.6rem;}
+    .week-label{font-size:.56rem;}
+    .modal-box{padding:18px;}
   }
 </style>
 </head>
@@ -235,14 +303,7 @@
     <h3>Registrar — <span id="modalTitle"></span></h3>
     <div class="modal-sub" id="modalSub"></div>
     <div class="modal-field"><label class="modal-label">Disciplina</label>
-      <select class="modal-select" id="modalDisc">
-        <option value="fluencia">Fluência de Dados</option>
-        <option value="tributario">Dir. Tributário</option>
-        <option value="contabilidade">Contabilidade Av.</option>
-        <option value="legislacao">Leg. Tributária</option>
-        <option value="financas">Finanças Públicas</option>
-        <option value="discursivas">Discursivas e revisão</option>
-      </select>
+      <select class="modal-select" id="modalDisc"></select>
     </div>
     <div class="modal-field"><label class="modal-label">Horas estudadas</label><input type="number" class="modal-input" id="modalHours" min="0.5" max="12" step="0.5" placeholder="ex: 2.5"></div>
     <div class="modal-field"><label class="modal-label">Observação (opcional)</label><input type="text" class="modal-input" id="modalNote" placeholder="ex: CTN arts 1-50"></div>
@@ -268,7 +329,7 @@
       <div class="title-meta">Auditor Fiscal — Gestão Fazendária | Prova: 01/08/2026 <span id="userLabel"></span><button class="signout-btn" onclick="doSignOut()">sair</button></div>
     </div>
     <div class="stats-bar">
-      <div class="stat"><div class="stat-label">Horas estudadas</div><div class="stat-value" id="totalHours">0h</div><div class="stat-sub">meta: ~244h</div></div>
+      <div class="stat"><div class="stat-label">Horas estudadas</div><div class="stat-value" id="totalHours">0h</div><div class="stat-sub" id="metaTotalSub">meta: ~244h</div></div>
       <div class="stat"><div class="stat-label">Dias estudados</div><div class="stat-value" id="totalDays">0</div><div class="stat-sub">mai a jul</div></div>
       <div class="stat"><div class="stat-label">Tópicos cobertos</div><div class="stat-value" id="topicsPct">0%</div><div class="stat-sub" id="topicsCount">0 de 0</div></div>
       <div class="stat"><div class="stat-label">Dias até a prova</div><div class="stat-value" id="daysLeft">—</div><div class="stat-sub">01 de agosto</div></div>
@@ -278,21 +339,21 @@
   <div id="alertBanner" style="display:none;margin-bottom:22px;padding:16px 20px;border-radius:10px;font-size:0.9rem;font-family:'Inter',sans-serif;font-weight:600;line-height:1.6;border:1.5px solid var(--accent);background:rgba(240,192,64,0.08);"></div>
 
   <section class="progress-section">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;gap:10px;flex-wrap:wrap;">
       <div class="section-title" style="margin-bottom:0;">⬡ Progresso por Disciplina</div>
-      <div>
-        <button class="signout-btn" style="font-size:0.65rem;border-color:var(--accent);color:var(--accent);" onclick="toggleEditDisciplines()">Ajustar Metas</button>
-        <button class="signout-btn" style="font-size:0.65rem;border-color:var(--danger);color:var(--danger);margin-left:8px;" onclick="resetToDefaultTargets()">Resetar Metas</button>
-      </div>
+      <button class="manager-toggle" onclick="toggleDiscManager()">⚙ Gerenciar disciplinas</button>
     </div>
-    
-    <!-- Painel de edição de metas de disciplinas -->
-    <div id="editDisciplinesPanel" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:0.8rem;font-weight:800;margin-bottom:12px;color:var(--accent);">Ajustar Carga Horária Programada das Disciplinas</div>
-      <div id="disciplineInputsContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
-      <div style="display:flex;gap:8px;">
-        <button class="modal-save" style="padding:6px 12px;font-size:0.75rem;width:auto;" onclick="saveDisciplineTargets()">Confirmar</button>
-        <button class="modal-cancel" style="padding:6px 12px;font-size:0.75rem;" onclick="toggleEditDisciplines()">Cancelar</button>
+
+    <!-- Gerenciador de disciplinas: adicionar, editar, reordenar e remover -->
+    <div id="discManagerPanel" class="manager-panel" style="display:none;">
+      <div class="manager-title">Disciplinas do plano</div>
+      <div class="manager-hint">Edite nome, cor, carga horária (meta) e nº de questões — ou adicione e remova disciplinas. A ordem da lista define a sequência de alocação dos dias no calendário (use ↑ e ↓ para reordenar). O plano é redistribuído automaticamente ao salvar.</div>
+      <div id="discManagerRows"></div>
+      <button class="manager-add" onclick="addDisciplineRow()">+ Nova disciplina</button>
+      <div class="manager-actions">
+        <button class="modal-save" style="flex:0 0 auto;width:auto;padding:10px 18px;" onclick="saveDisciplines()">Salvar alterações</button>
+        <button class="modal-cancel" onclick="toggleDiscManager()">Cancelar</button>
+        <button class="manager-reset" onclick="resetToDefaultTargets()">Restaurar plano padrão</button>
       </div>
     </div>
 
@@ -308,42 +369,22 @@
   </div>
 
   <div class="tab-panel active" id="tab-maio">
-    <div class="section-title">◈ Calendário — Maio 2026 <span style="color:var(--muted);font-size:.6rem">(clique em qualquer dia para registrar)</span></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#f0c040"></div>Fluência</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div>Dir. Tributário</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Contabilidade</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#252a38"></div>Plantão</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#091510"></div>Pós-plantão</div>
-      <div class="legend-item">🏆 meta cumprida</div>
-      <div class="legend-item">🏆🏆 meta superada</div>
-    </div>
+    <div class="section-title">◈ Calendário — Maio 2026 <span style="color:var(--muted);font-size:.72rem">(toque em qualquer dia para ver detalhes e registrar)</span></div>
+    <div class="legend" id="legendMaio"></div>
     <div class="week-labels"><div class="week-label">Dom</div><div class="week-label">Seg</div><div class="week-label">Ter</div><div class="week-label">Qua</div><div class="week-label">Qui</div><div class="week-label">Sex</div><div class="week-label">Sáb</div></div>
     <div class="calendar-grid" id="calMaio"></div>
   </div>
 
   <div class="tab-panel" id="tab-junho">
-    <div class="section-title">◈ Calendário — Junho 2026 <span style="color:var(--muted);font-size:.6rem">(clique em qualquer dia para registrar)</span></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Contabilidade</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Leg. Tributária</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Finanças Públ.</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#252a38"></div>Plantão</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#091510"></div>Pós-plantão</div>
-      <div class="legend-item">🏆 meta cumprida</div>
-      <div class="legend-item">🏆🏆 meta superada</div>
-    </div>
+    <div class="section-title">◈ Calendário — Junho 2026 <span style="color:var(--muted);font-size:.72rem">(toque em qualquer dia para ver detalhes e registrar)</span></div>
+    <div class="legend" id="legendJunho"></div>
     <div class="week-labels"><div class="week-label">Dom</div><div class="week-label">Seg</div><div class="week-label">Ter</div><div class="week-label">Qua</div><div class="week-label">Qui</div><div class="week-label">Sex</div><div class="week-label">Sáb</div></div>
     <div class="calendar-grid" id="calJunho"></div>
   </div>
 
   <div class="tab-panel" id="tab-julho">
-    <div class="section-title">◈ Calendário — Julho 2026 <span style="color:var(--muted);font-size:.6rem">(clique em qualquer dia para registrar)</span></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#f43f5e"></div>Disc. e Revisão</div>
-      <div class="legend-item">🏆 meta cumprida</div>
-      <div class="legend-item">🏆🏆 meta superada</div>
-    </div>
+    <div class="section-title">◈ Calendário — Julho 2026 <span style="color:var(--muted);font-size:.72rem">(toque em qualquer dia para ver detalhes e registrar)</span></div>
+    <div class="legend" id="legendJulho"></div>
     <div class="week-labels"><div class="week-label">Dom</div><div class="week-label">Seg</div><div class="week-label">Ter</div><div class="week-label">Qua</div><div class="week-label">Qui</div><div class="week-label">Sex</div><div class="week-label">Sáb</div></div>
     <div class="calendar-grid" id="calJulho"></div>
   </div>
@@ -359,7 +400,7 @@
       <div class="log-form">
         <div class="form-field"><label class="form-label">Mês</label><select class="form-select" id="logMonth" style="width:95px"><option value="maio">Maio</option><option value="junho">Junho</option><option value="julho">Julho</option></select></div>
         <div class="form-field"><label class="form-label">Dia</label><input type="number" class="form-input" id="logDay" min="1" max="31" placeholder="dia" style="width:62px"></div>
-        <div class="form-field"><label class="form-label">Disciplina</label><select class="form-select" id="logDisc" style="width:180px"><option value="fluencia">Fluência de Dados</option><option value="tributario">Dir. Tributário</option><option value="contabilidade">Contabilidade Av.</option><option value="legislacao">Leg. Tributária</option><option value="financas">Finanças Públicas</option><option value="discursivas">Discursivas e revisão</option></select></div>
+        <div class="form-field"><label class="form-label">Disciplina</label><select class="form-select" id="logDisc" style="width:180px"></select></div>
         <div class="form-field"><label class="form-label">Horas</label><input type="number" class="form-input" id="logHours" min="0.5" max="12" step="0.5" placeholder="h" style="width:62px"></div>
         <div class="form-field"><label class="form-label">Obs.</label><input type="text" class="form-input" id="logNote" placeholder="ex: CTN arts 1-50" style="width:185px"></div>
         <button class="log-btn" onclick="addLog()">Registrar</button>
@@ -381,7 +422,9 @@ const db=getFirestore(app),auth=getAuth(app),provider=new GoogleAuthProvider();
 let currentUser=null,unsubSnap=null;
 
 // ── Static data ───────────────────────────────────────────────────────────────
-const DISCIPLINES=[
+// Lista padrão. A lista efetiva pode ser personalizada pelo usuário (adicionar,
+// editar, reordenar e remover disciplinas) e fica salva em state.disciplines.
+const DEFAULT_DISCIPLINES=[
   {id:'fluencia',     name:'Fluência de Dados', color:'#f0c040',targetH:36,questoes:10},
   {id:'tributario',   name:'Dir. Tributário',   color:'#4fc3f7',targetH:50,questoes:20},
   {id:'contabilidade',name:'Contabilidade Av.', color:'#a78bfa',targetH:50,questoes:20},
@@ -486,8 +529,31 @@ const TOPICS={
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let state={logs:{},topics:{},openDiscs:{},dailyTargets:{},disciplineTargets:{}};
+let state={logs:{},topics:{},openDiscs:{},dailyTargets:{},disciplineTargets:{},disciplines:null,customTopics:{}};
 let modalContext=null;
+
+// Escapa texto fornecido pelo usuário antes de injetá-lo em HTML.
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// Lista efetiva de disciplinas: a personalizada (state.disciplines) ou a padrão,
+// com as metas antigas de state.disciplineTargets ainda aplicadas por cima
+// (compatibilidade com dados salvos antes do gerenciador de disciplinas).
+function getDisciplines(){
+  const base=(Array.isArray(state.disciplines)&&state.disciplines.length)?state.disciplines:DEFAULT_DISCIPLINES;
+  return base.map(d=>{
+    const t=state.disciplineTargets?state.disciplineTargets[d.id]:undefined;
+    return {...d,targetH:(t!==undefined&&t!==null&&!isNaN(t))?t:d.targetH};
+  });
+}
+
+// Tópicos de uma disciplina: os fixos do edital (TOPICS) + os adicionados pelo
+// usuário (state.customTopics). Tópicos fixos usam chave por índice (formato
+// legado `${disc}_${i}`); os personalizados, chave por id (`${disc}_${id}`).
+function getTopicsFor(discId){
+  const def=(TOPICS[discId]||[]).map((t,i)=>({key:`${discId}_${i}`,text:t,fixed:true}));
+  const cust=((state.customTopics&&state.customTopics[discId])||[]).map(t=>({key:`${discId}_${t.id}`,text:t.text,fixed:false,id:t.id}));
+  return def.concat(cust);
+}
 
 const userDoc=()=>doc(db,'usuarios',currentUser.uid,'plano','2026');
 function setSync(m,t){const e=document.getElementById('syncStatus');e.className=m;e.textContent=t;}
@@ -507,8 +573,8 @@ async function save(patch){
 function listen(){
   if(unsubSnap)unsubSnap();
   unsubSnap=onSnapshot(userDoc(),snap=>{
-    if(snap.exists()){const d=snap.data();state.logs=d.logs||{};state.topics=d.topics||{};state.openDiscs=d.openDiscs||{};state.dailyTargets=d.dailyTargets||{};state.disciplineTargets=d.disciplineTargets||{};}
-    else{state={logs:{},topics:{},openDiscs:{},dailyTargets:{},disciplineTargets:{}};}
+    if(snap.exists()){const d=snap.data();state.logs=d.logs||{};state.topics=d.topics||{};state.openDiscs=d.openDiscs||{};state.dailyTargets=d.dailyTargets||{};state.disciplineTargets=d.disciplineTargets||{};state.disciplines=(Array.isArray(d.disciplines)&&d.disciplines.length)?d.disciplines:null;state.customTopics=d.customTopics||{};}
+    else{state={logs:{},topics:{},openDiscs:{},dailyTargets:{},disciplineTargets:{},disciplines:null,customTopics:{}};}
     render();setSync('saved','● sincronizado');
   },e=>{setSync('error','✕ sem conexão');console.error(e);});
 }
@@ -569,15 +635,8 @@ function updateDynamicPlan() {
     });
   }
 
-  // Get current disciplines and their custom targets
-  const disciplines = DISCIPLINES.map(d => {
-    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
-    return {
-      ...d,
-      targetH: (customTarget !== undefined && customTarget !== null && !isNaN(customTarget)) ? customTarget : d.targetH
-    };
-  });
-  console.log('updateDynamicPlan: discipline targets:', disciplines.map(d => `${d.id}: ${d.targetH}h`));
+  // Get current disciplines (custom list, order and targets included)
+  const disciplines = getDisciplines();
 
   // Collect all days in order
   const allDays = [];
@@ -721,13 +780,7 @@ function computeMetrics(){
   for(let d=1;d<=31;d++) allDays.push({month:'julho',day:d,plan:window.dynamicPlan.julho[d]||null});
 
   const expectedByDisc={};
-  const disciplines = DISCIPLINES.map(d => {
-    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
-    return {
-      ...d,
-      targetH: customTarget !== undefined ? customTarget : d.targetH
-    };
-  });
+  const disciplines = getDisciplines();
   disciplines.forEach(d=>expectedByDisc[d.id]=0);
 
   allDays.forEach(({month,day,plan})=>{
@@ -764,13 +817,23 @@ function openModal(month,day,discId){
   modalContext={month,day,discId};
   const monthNames = {maio: 'Maio', junho: 'Junho', julho: 'Julho'};
   document.getElementById('modalTitle').textContent=`${monthNames[month]} ${day}`;
-  const disc=DISCIPLINES.find(d=>d.id===discId);
+  const discs=getDisciplines();
   const plan=window.dynamicPlan[month][day];
-  let sub=disc?`Planejado: ${disc.name}`:'Dia livre';
-  if(plan&&(plan.type==='plantao'||plan.type==='feriado')) sub='Plantão / dia extra';
+  // Resumo completo do dia: nas telas pequenas o card do calendário é compacto,
+  // então o detalhamento (disciplinas, meta e horas registradas) aparece aqui.
+  const segs=(plan&&plan.segments)||[];
+  let sub;
+  if(segs.length){
+    sub='Planejado: '+segs.map(s=>{const d=discs.find(x=>x.id===s.disc);return `${d?d.name:s.disc} (${fmtH(s.hours)}h)`;}).join(' + ');
+  }else{
+    sub=(plan&&plan.type==='pre-prova')?'Semana pré-prova':'Dia livre';
+  }
+  if(plan&&(plan.type==='plantao'||plan.type==='feriado')) sub+=' · plantão/feriado';
+  const logged=getHoursByDay(month)[day]||0;
+  if(logged>0) sub+=` · registrado: ${fmtH(logged)}h`;
   document.getElementById('modalSub').textContent=sub;
   // Pre-select disc if available, else keep current
-  if(discId) document.getElementById('modalDisc').value=discId;
+  if(discId&&discs.some(d=>d.id===discId)) document.getElementById('modalDisc').value=discId;
   document.getElementById('modalHours').value='';
   document.getElementById('modalNote').value='';
   // Load current target hours for that day
@@ -793,12 +856,12 @@ window.saveModal=async()=>{
 document.getElementById('quickModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 
 // ── Computed ──────────────────────────────────────────────────────────────────
-function getHoursByDisc(){const h={};DISCIPLINES.forEach(d=>h[d.id]=0);Object.values(state.logs).forEach(l=>{if(h[l.disc]!==undefined)h[l.disc]+=l.hours;});return h;}
-function getTopicsByDisc(){const t={};DISCIPLINES.forEach(d=>{const topics=TOPICS[d.id]||[];const done=topics.filter((_,i)=>state.topics[`${d.id}_${i}`]).length;t[d.id]={done,total:topics.length};});return t;}
+function getHoursByDisc(){const h={};getDisciplines().forEach(d=>h[d.id]=0);Object.values(state.logs).forEach(l=>{if(h[l.disc]!==undefined)h[l.disc]+=l.hours;});return h;}
+function getTopicsByDisc(){const t={};getDisciplines().forEach(d=>{const topics=getTopicsFor(d.id);t[d.id]={done:topics.filter(x=>state.topics[x.key]).length,total:topics.length};});return t;}
 function getHoursByDay(month){const h={};Object.values(state.logs).filter(l=>l.month===month).forEach(l=>{h[l.day]=(h[l.day]||0)+l.hours;});return h;}
 function getTotalHours(){return Object.values(state.logs).reduce((s,l)=>s+l.hours,0);}
 function getDaysStudied(){return new Set(Object.values(state.logs).map(l=>l.month+'_'+l.day)).size;}
-function getTopicStats(){let total=0,done=0;Object.keys(TOPICS).forEach(disc=>{TOPICS[disc].forEach((_,i)=>{total++;if(state.topics[`${disc}_${i}`])done++;});});return{total,done};}
+function getTopicStats(){let total=0,done=0;getDisciplines().forEach(d=>{getTopicsFor(d.id).forEach(t=>{total++;if(state.topics[t.key])done++;});});return{total,done};}
 function getDaysLeft(){const exam=new Date('2026-08-01');const now=new Date();now.setHours(0,0,0,0);return Math.max(0,Math.round((exam-now)/86400000));}
 // Formata horas sem casas decimais desnecessárias (5 -> "5", 4.5 -> "4.5").
 function fmtH(h){h=Math.round(h*100)/100;return h%1===0?String(h):h.toFixed(1);}
@@ -806,7 +869,9 @@ function fmtH(h){h=Math.round(h*100)/100;return h%1===0?String(h):h.toFixed(1);}
 // ── Render ────────────────────────────────────────────────────────────────────
 function render(){
   updateDynamicPlan();
+  renderDiscOptions();
   renderStats();renderBars();
+  renderLegends();
   renderCalendar('maio',window.dynamicPlan.maio,5,31,'calMaio');
   renderCalendar('junho',window.dynamicPlan.junho,1,30,'calJunho');
   renderCalendar('julho',window.dynamicPlan.julho,3,31,'calJulho');
@@ -814,16 +879,51 @@ function render(){
   renderAlertBanner();
 }
 
+// Selects de disciplina (modal e formulário de registro) seguem a lista dinâmica.
+function renderDiscOptions(){
+  const opts=getDisciplines().map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+  ['modalDisc','logDisc'].forEach(elId=>{
+    const el=document.getElementById(elId);
+    const cur=el.value;
+    el.innerHTML=opts;
+    if(cur&&[...el.options].some(o=>o.value===cur))el.value=cur;
+  });
+}
+
+// Legendas dos calendários: geradas a partir das disciplinas realmente alocadas
+// em cada mês (acompanham adições, remoções e mudanças de cor/nome).
+function renderLegends(){
+  const discs=getDisciplines();
+  [['maio','legendMaio'],['junho','legendJunho'],['julho','legendJulho']].forEach(([m,elId])=>{
+    const el=document.getElementById(elId);
+    if(!el)return;
+    const days=window.dynamicPlan[m];
+    const present=[];
+    Object.values(days).forEach(p=>{(p.segments||[]).forEach(s=>{if(!present.includes(s.disc))present.push(s.disc);});});
+    let html=present.map(id=>{
+      const d=discs.find(x=>x.id===id);
+      return d?`<div class="legend-item"><div class="legend-dot" style="background:${d.color}"></div>${esc(d.name)}</div>`:'';
+    }).join('');
+    const types=new Set(Object.values(days).map(p=>p.type));
+    if(types.has('plantao'))html+='<div class="legend-item"><div class="legend-dot" style="background:#252a38"></div>Plantão</div>';
+    if(types.has('pos-plantao'))html+='<div class="legend-item"><div class="legend-dot" style="background:#091510"></div>Pós-plantão</div>';
+    if(types.has('pre-prova'))html+='<div class="legend-item"><div class="legend-dot" style="background:#151a14;border:1px dashed var(--accent)"></div>Pré-prova</div>';
+    html+='<div class="legend-item">🏆 meta cumprida</div><div class="legend-item">🏆🏆 meta superada</div>';
+    el.innerHTML=html;
+  });
+}
+
 function renderAlertBanner() {
   const banner = document.getElementById('alertBanner');
   if (!banner) return;
+  const discs = getDisciplines();
 
   const spilledDiscs = [];
   for (let d = 25; d <= 31; d++) {
     const pDay = window.dynamicPlan.julho[d];
     if (pDay && pDay.segments && pDay.segments.length && pDay.hours > 0) {
       pDay.segments.forEach(seg => {
-        const discName = DISCIPLINES.find(dis => dis.id === seg.disc)?.name || seg.disc;
+        const discName = esc(discs.find(dis => dis.id === seg.disc)?.name || seg.disc);
         if (!spilledDiscs.includes(discName)) {
           spilledDiscs.push(discName);
         }
@@ -845,7 +945,7 @@ function renderAlertBanner() {
     if (totalUnallocated > 0) {
       const details = Object.entries(window.unallocatedByDisc)
         .map(([id, hours]) => {
-          const name = DISCIPLINES.find(d => d.id === id)?.name || id;
+          const name = esc(discs.find(d => d.id === id)?.name || id);
           return `${name} (${hours.toFixed(1)}h)`;
         })
         .join(', ');
@@ -874,6 +974,7 @@ function renderAlertBanner() {
 function renderStats(){
   const h=getTotalHours(),{total,done}=getTopicStats();
   document.getElementById('totalHours').textContent=h%1===0?h+'h':h.toFixed(1)+'h';
+  document.getElementById('metaTotalSub').textContent='meta: ~'+fmtH(getDisciplines().reduce((s,d)=>s+d.targetH,0))+'h';
   document.getElementById('totalDays').textContent=getDaysStudied();
   document.getElementById('topicsPct').textContent=total?Math.round(done/total*100)+'%':'0%';
   document.getElementById('topicsCount').textContent=`${done} de ${total}`;
@@ -885,13 +986,7 @@ function renderBars(){
   const topics=getTopicsByDisc();
   const {debtByDisc,expectedByDisc}=computeMetrics();
 
-  const disciplines = DISCIPLINES.map(d => {
-    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
-    return {
-      ...d,
-      targetH: customTarget !== undefined ? customTarget : d.targetH
-    };
-  });
+  const disciplines = getDisciplines();
 
   document.getElementById('disciplineBars').innerHTML=disciplines.map(d=>{
     const studied=hoursStudied[d.id]||0;
@@ -925,7 +1020,7 @@ function renderBars(){
 
     return `<div class="disc-progress-block">
       <div class="disc-progress-header">
-        <span class="disc-progress-name" style="color:${d.color}">${d.name}${debtLabel}</span>
+        <span class="disc-progress-name" style="color:${d.color}">${esc(d.name)}${debtLabel}</span>
         <span class="disc-progress-meta">${d.questoes > 0 ? d.questoes + ' questões' : 'Prática'}</span>
       </div>
       <div class="dual-bars">
@@ -952,6 +1047,7 @@ function renderBars(){
 }
 
 function renderCalendar(month,plan,offset,days,containerId){
+  const discs=getDisciplines();
   const byDay=getHoursByDay(month);
   const now=new Date();now.setHours(0,0,0,0);
   const mIdx = month==='maio'?4:(month==='junho'?5:6);
@@ -959,8 +1055,6 @@ function renderCalendar(month,plan,offset,days,containerId){
   const todayDate=now.getDate(),isThisYear=now.getFullYear()===2026;
 
   let html='<div class="cal-empty"></div>'.repeat(offset);
-
-  const WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
   for(let day=1;day<=days;day++){
     const p=plan[day]||{type:'estudo',disc:null,label:'',hours:0,segments:[]};
@@ -1000,31 +1094,31 @@ function renderCalendar(month,plan,offset,days,containerId){
     let discHtml = typeLabel;
     if (segs.length > 1) {
       discHtml += segs.map(seg=>{
-        const sd=DISCIPLINES.find(d=>d.id===seg.disc);
-        return `<div class="day-disc" style="color:${sd?sd.color:'var(--muted)'}">${sd?sd.name:seg.disc} · ${fmtH(seg.hours)}h</div>`;
+        const sd=discs.find(d=>d.id===seg.disc);
+        return `<div class="day-disc" style="color:${sd?sd.color:'var(--muted)'}">${esc(sd?sd.name:seg.disc)} · ${fmtH(seg.hours)}h</div>`;
       }).join('');
     } else if (segs.length === 1) {
-      const sd=DISCIPLINES.find(d=>d.id===segs[0].disc);
-      discHtml += `<div class="day-disc" style="color:${sd?sd.color:'var(--muted)'}">${sd?sd.name:segs[0].disc}</div>`;
+      const sd=discs.find(d=>d.id===segs[0].disc);
+      discHtml += `<div class="day-disc" style="color:${sd?sd.color:'var(--muted)'}">${esc(sd?sd.name:segs[0].disc)}</div>`;
     } else if (p.label) {
-      discHtml += `<div class="day-disc" style="color:var(--muted)">${p.label}</div>`;
+      discHtml += `<div class="day-disc" style="color:var(--muted)">${esc(p.label)}</div>`;
     }
 
     // Meta line (total planejado do dia)
     const metaHtml=meta>0?`<div class="day-meta">meta: ${fmtH(meta)}h</div>`:'';
 
     // Logged + trophy logic
-    let loggedHtml='', trophyHtml='', extraHtml='', shortHtml='';
+    let loggedHtml='', trophyStr='', extraHtml='', shortHtml='';
     if(logged>0){
       const color=logged>=meta?'#34d399':'#f87171';
       loggedHtml=`<div class="day-logged" style="color:${color}">${fmtH(logged)}h estudadas</div>`;
       if(meta>0){
         if(logged>meta){
           const extra=logged-meta;
-          trophyHtml=`<div class="day-trophy">🏆🏆</div>`;
+          trophyStr='🏆🏆';
           extraHtml=`<div class="day-extra">+${fmtH(extra)}h extra!</div>`;
         } else if(logged===meta){
-          trophyHtml=`<div class="day-trophy">🏆</div>`;
+          trophyStr='🏆';
         } else if(isPast){
           const short=meta-logged;
           shortHtml=`<div class="day-short">−${fmtH(short)}h da meta</div>`;
@@ -1033,9 +1127,28 @@ function renderCalendar(month,plan,offset,days,containerId){
     } else if(isPast&&meta>0){
       shortHtml=`<div class="day-short">−${fmtH(meta)}h da meta</div>`;
     }
+    const trophyHtml=trophyStr?`<div class="day-trophy">${trophyStr}</div>`:'';
+
+    // Modo compacto (telas pequenas): um ponto colorido por disciplina alocada
+    // e as horas do dia — registradas (verde/vermelho) ou a meta (neutro).
+    // A grade continua com 7 colunas reais; o detalhe completo abre no modal.
+    const dotsHtml=segs.map(seg=>{
+      const sd=discs.find(d=>d.id===seg.disc);
+      return `<span class="dot" style="background:${sd?sd.color:'#64748b'}"></span>`;
+    }).join('');
+    let miniHtml='';
+    if(logged>0){
+      miniHtml=`<div class="day-mini" style="color:${(meta>0&&logged<meta)?'#f87171':'#34d399'}">${fmtH(logged)}h</div>`;
+    } else if(meta>0){
+      miniHtml=`<div class="day-mini" style="color:var(--text-dim)">${fmtH(meta)}h</div>`;
+    }
+    const compactHtml=(dotsHtml||trophyStr||miniHtml)
+      ?`<div class="day-compact"><div class="day-dots">${dotsHtml}${trophyStr?`<span class="mini-trophy">${trophyStr}</span>`:''}</div>${miniHtml}</div>`
+      :'';
 
     html+=`<div class="${cls}" ${clickAttr}>
-      <div class="day-head"><span class="day-num">${day}</span><span class="day-weekday">${WD[dayDate.getDay()]}</span></div>
+      <div class="day-head"><span class="day-num">${day}</span></div>
+      ${compactHtml}
       ${discHtml}
       ${metaHtml}
       ${loggedHtml}
@@ -1048,37 +1161,35 @@ function renderCalendar(month,plan,offset,days,containerId){
 }
 
 function renderTopics(){
-  const disciplines = DISCIPLINES.map(d => {
-    const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
-    return {
-      ...d,
-      targetH: customTarget !== undefined ? customTarget : d.targetH
-    };
-  });
-
-  document.getElementById('topicsContainer').innerHTML=disciplines.map(d=>{
-    const topics=TOPICS[d.id]||[];
-    const doneCount=topics.filter((_,i)=>state.topics[`${d.id}_${i}`]).length;
+  document.getElementById('topicsContainer').innerHTML=getDisciplines().map(d=>{
+    const topics=getTopicsFor(d.id);
+    const doneCount=topics.filter(t=>state.topics[t.key]).length;
     const isOpen=state.openDiscs[d.id];
     return `<div class="discipline-block ${isOpen?'open':''}">
       <div class="disc-header" onclick="toggleDisc('${d.id}')">
-        <div class="disc-header-left"><div class="disc-dot" style="background:${d.color}"></div><div class="disc-header-name" style="color:${d.color}">${d.name}</div><div class="disc-header-meta">${d.questoes > 0 ? d.questoes + 'q · ' : ''}meta ${d.targetH}h</div></div>
+        <div class="disc-header-left"><div class="disc-dot" style="background:${d.color}"></div><div class="disc-header-name" style="color:${d.color}">${esc(d.name)}</div><div class="disc-header-meta">${d.questoes > 0 ? d.questoes + 'q · ' : ''}meta ${fmtH(d.targetH)}h</div></div>
         <div class="disc-header-right"><div class="disc-completion" style="color:${d.color}">${doneCount}/${topics.length}</div><div class="chevron">▼</div></div>
       </div>
       <div class="topics-list">
-        ${topics.map((t,i)=>{const key=`${d.id}_${i}`,done=state.topics[key];return `<div class="topic-item ${done?'done-item':''}" onclick="toggleTopic('${key}')"><div class="topic-check ${done?'done':''}"></div><div class="topic-text">${t}</div></div>`;}).join('')}
+        ${topics.map(t=>{const done=state.topics[t.key];return `<div class="topic-item ${done?'done-item':''}" onclick="toggleTopic('${t.key}')"><div class="topic-check ${done?'done':''}"></div><div class="topic-text">${esc(t.text)}</div>${t.fixed?'':`<button class="topic-del" title="Remover tópico" onclick="event.stopPropagation();removeTopic('${d.id}','${t.id}')">✕</button>`}</div>`;}).join('')}
+        ${topics.length===0?'<div class="topics-empty">Nenhum tópico cadastrado ainda — adicione abaixo.</div>':''}
+        <div class="topic-add-row">
+          <input type="text" class="topic-add-input" id="topicAdd_${d.id}" placeholder="Adicionar tópico..." maxlength="200" onkeydown="if(event.key==='Enter')addTopic('${d.id}')">
+          <button class="topic-add-btn" onclick="addTopic('${d.id}')">+ adicionar</button>
+        </div>
       </div>
     </div>`;
   }).join('');
 }
 
 function renderLogs(){
+  const discs=getDisciplines();
   const mWeights = {maio: 5, junho: 6, julho: 7};
   const logs=Object.entries(state.logs).sort((a,b)=>{const ma=mWeights[a[1].month]||5,mb=mWeights[b[1].month]||5;return mb!==ma?mb-ma:b[1].day-a[1].day;});
   if(!logs.length){document.getElementById('logHistory').innerHTML='<div style="font-size:0.9rem;font-weight:600;color:var(--muted)">Nenhum registro ainda.</div>';return;}
   document.getElementById('logHistory').innerHTML=logs.map(([id,l])=>{
-    const disc=DISCIPLINES.find(d=>d.id===l.disc);const color=disc?disc.color:'var(--text)',name=disc?disc.name:l.disc;
-    return `<div class="log-entry"><span class="log-entry-date">${l.month||'maio'} ${l.day}</span><span class="log-entry-disc" style="color:${color}">${name}</span><span class="log-entry-hours">${l.hours}h</span><span class="log-entry-note">${l.note||''}</span><button class="delete-btn" onclick="deleteLog('${id}')">✕</button></div>`;
+    const disc=discs.find(d=>d.id===l.disc);const color=disc?disc.color:'var(--text)',name=disc?disc.name:l.disc;
+    return `<div class="log-entry"><span class="log-entry-date">${l.month||'maio'} ${l.day}</span><span class="log-entry-disc" style="color:${color}">${esc(name)}</span><span class="log-entry-hours">${l.hours}h</span><span class="log-entry-note">${esc(l.note||'')}</span><button class="delete-btn" onclick="deleteLog('${id}')">✕</button></div>`;
   }).join('');
 }
 
@@ -1120,51 +1231,119 @@ window.saveDailyTarget = async () => {
   await save({ dailyTargets: state.dailyTargets });
 };
 
-window.toggleEditDisciplines = () => {
-  const panel = document.getElementById('editDisciplinesPanel');
-  if (panel.style.display === 'none') {
-    const disciplines = DISCIPLINES.map(d => {
-      const customTarget = state.disciplineTargets && state.disciplineTargets[d.id];
-      return {
-        ...d,
-        targetH: customTarget !== undefined ? customTarget : d.targetH
-      };
-    });
-    document.getElementById('disciplineInputsContainer').innerHTML = disciplines.map(d => `
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-        <span style="font-size:0.75rem;color:${d.color};font-weight:700;">${d.name}</span>
-        <input type="number" class="modal-input" style="width:80px;text-align:right;" id="edit_target_${d.id}" min="0" max="200" step="1" value="${d.targetH}">
-      </div>
-    `).join('');
-    panel.style.display = 'block';
-  } else {
-    panel.style.display = 'none';
+// ── Gerenciador de disciplinas (adicionar / editar / reordenar / remover) ─────
+const PALETTE=['#f0c040','#4fc3f7','#a78bfa','#34d399','#fb923c','#f43f5e','#22d3ee','#e879f9','#a3e635','#fda4af','#93c5fd','#fdba74'];
+let editingDiscs=null; // cópia de trabalho enquanto o painel está aberto
+const newDiscId=()=>'d'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
+
+window.toggleDiscManager=()=>{
+  const panel=document.getElementById('discManagerPanel');
+  if(panel.style.display==='none'){
+    editingDiscs=getDisciplines().map(d=>({...d}));
+    renderDiscManager();
+    panel.style.display='block';
+  }else{
+    panel.style.display='none';
+    editingDiscs=null;
   }
 };
 
-window.saveDisciplineTargets = async () => {
-  if (!state.disciplineTargets) state.disciplineTargets = {};
-  DISCIPLINES.forEach(d => {
-    const val = parseFloat(document.getElementById(`edit_target_${d.id}`).value);
-    if (!isNaN(val) && val >= 0) {
-      state.disciplineTargets[d.id] = val;
-    }
-  });
-  render();
-  document.getElementById('editDisciplinesPanel').style.display = 'none';
-  await save({ disciplineTargets: state.disciplineTargets });
+function renderDiscManager(){
+  document.getElementById('discManagerRows').innerHTML=editingDiscs.map((d,i)=>`
+    <div class="manager-row">
+      <input type="color" class="manager-color" value="${esc(d.color)}" title="Cor da disciplina" oninput="updEditDisc(${i},'color',this.value)">
+      <input type="text" class="manager-name" value="${esc(d.name)}" placeholder="Nome da disciplina" maxlength="60" oninput="updEditDisc(${i},'name',this.value)">
+      <label class="manager-num-label">meta(h)<input type="number" class="manager-num" min="0" max="500" step="0.5" value="${d.targetH}" oninput="updEditDisc(${i},'targetH',this.value)"></label>
+      <label class="manager-num-label">quest.<input type="number" class="manager-num" min="0" max="200" step="1" value="${d.questoes}" oninput="updEditDisc(${i},'questoes',this.value)"></label>
+      <div class="manager-row-btns">
+        <button class="icon-btn" title="Mover para cima" ${i===0?'disabled':''} onclick="moveEditDisc(${i},-1)">↑</button>
+        <button class="icon-btn" title="Mover para baixo" ${i===editingDiscs.length-1?'disabled':''} onclick="moveEditDisc(${i},1)">↓</button>
+        <button class="icon-btn danger" title="Remover disciplina" onclick="removeEditDisc(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+window.updEditDisc=(i,field,val)=>{if(editingDiscs&&editingDiscs[i])editingDiscs[i][field]=val;};
+
+window.moveEditDisc=(i,dir)=>{
+  const j=i+dir;
+  if(!editingDiscs||j<0||j>=editingDiscs.length)return;
+  [editingDiscs[i],editingDiscs[j]]=[editingDiscs[j],editingDiscs[i]];
+  renderDiscManager();
 };
 
-window.resetToDefaultTargets = async () => {
-  if (!confirm('Deseja realmente resetar todas as metas diárias e de disciplinas para os valores padrão?')) return;
-  state.dailyTargets = {};
-  state.disciplineTargets = {};
+window.removeEditDisc=i=>{
+  const d=editingDiscs&&editingDiscs[i];if(!d)return;
+  const logCount=Object.values(state.logs).filter(l=>l.disc===d.id).length;
+  const msg=logCount>0
+    ?`Remover "${d.name}" do plano? Os ${logCount} registros de estudo dela continuam no histórico, mas a disciplina sai do calendário e das metas.`
+    :`Remover "${d.name}" do plano?`;
+  if(!confirm(msg))return;
+  editingDiscs.splice(i,1);
+  renderDiscManager();
+};
+
+window.addDisciplineRow=()=>{
+  if(!editingDiscs)return;
+  const used=editingDiscs.map(d=>d.color);
+  const color=PALETTE.find(c=>!used.includes(c))||PALETTE[Math.floor(Math.random()*PALETTE.length)];
+  editingDiscs.push({id:newDiscId(),name:'',color,targetH:20,questoes:0});
+  renderDiscManager();
+  const inputs=document.querySelectorAll('#discManagerRows .manager-name');
+  if(inputs.length)inputs[inputs.length-1].focus();
+};
+
+window.saveDisciplines=async()=>{
+  if(!editingDiscs)return;
+  if(!editingDiscs.length){alert('Mantenha pelo menos uma disciplina no plano.');return;}
+  const clean=[];
+  for(const d of editingDiscs){
+    const name=String(d.name||'').trim();
+    if(!name){alert('Toda disciplina precisa de um nome.');return;}
+    const targetH=parseFloat(d.targetH),questoes=parseInt(d.questoes);
+    clean.push({id:d.id,name,color:d.color||'#94a3b8',targetH:(isNaN(targetH)||targetH<0)?0:targetH,questoes:(isNaN(questoes)||questoes<0)?0:questoes});
+  }
+  state.disciplines=clean;
+  state.disciplineTargets={}; // metas antigas ficam incorporadas à própria lista
+  document.getElementById('discManagerPanel').style.display='none';
+  editingDiscs=null;
   render();
-  await save({ dailyTargets: deleteField(), disciplineTargets: deleteField() });
+  await save({disciplines:clean,disciplineTargets:deleteField()});
+};
+
+window.resetToDefaultTargets=async()=>{
+  if(!confirm('Restaurar o plano padrão? Disciplinas personalizadas e metas ajustadas serão removidas (registros de estudo e tópicos concluídos são mantidos).'))return;
+  state.dailyTargets={};state.disciplineTargets={};state.disciplines=null;
+  document.getElementById('discManagerPanel').style.display='none';
+  editingDiscs=null;
+  render();
+  await save({dailyTargets:deleteField(),disciplineTargets:deleteField(),disciplines:deleteField()});
+};
+
+// ── Tópicos personalizados ────────────────────────────────────────────────────
+window.addTopic=async discId=>{
+  const input=document.getElementById('topicAdd_'+discId);
+  const text=((input&&input.value)||'').trim();
+  if(!text)return;
+  if(!state.customTopics)state.customTopics={};
+  if(!state.customTopics[discId])state.customTopics[discId]=[];
+  state.customTopics[discId].push({id:Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),text});
+  renderStats();renderBars();renderTopics();
+  const again=document.getElementById('topicAdd_'+discId);
+  if(again)again.focus();
+  await save({customTopics:state.customTopics});
+};
+
+window.removeTopic=async(discId,topicId)=>{
+  if(!state.customTopics||!state.customTopics[discId])return;
+  state.customTopics[discId]=state.customTopics[discId].filter(t=>t.id!==topicId);
+  delete state.topics[`${discId}_${topicId}`];
+  renderStats();renderBars();renderTopics();
+  await save({customTopics:state.customTopics,[`topics.${discId}_${topicId}`]:deleteField()});
 };
 
 window.openModal=openModal;
-// v6
+// v7
 </script>
 </body>
 </html>
